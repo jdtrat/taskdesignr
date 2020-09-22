@@ -16,4 +16,9 @@ Depends:
     R (>= 2.10)
 Imports: 
     shinyWidgets,
-    shiny
+    shiny,
+    dplyr,
+    tidyr,
+    purrr,
+    magrittr,
+    rlang

@@ -1,12 +1,37 @@
+
+#' Get Unique Questions in a Nested Dataframe
+#'
+#' @param df A user supplied dataframe in the format of teaching_r_questions.
+#'
+#' @return A nested dataframe.
+#'
+#' @importFrom rlang .data
+#'
+nestUniqueQuestions <- function(df) {
+  # nest the sample data
+  # replace any NA with "placeholder"
+  # I've added the question_number but there has to be a better way to do this...
+  df %>%
+    dplyr::mutate(option = tidyr::replace_na(.data$option, "placeholder")) %>%
+    dplyr::group_by(.data$question) %>%
+    tidyr::nest() %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(question_number = dplyr::row_number(), .before = .data$question) %>%
+    tidyr::unnest(.data$data) %>%
+    ## Remove this when you figure out dependence !
+    dplyr::filter(is.na(.data$dependence)) %>%
+    dplyr::group_by(.data$question_number) %>%
+    tidyr::nest() %>%
+    dplyr::ungroup()
+}
+
 #' Generate the UI Code for demoraphic questions
 #'
 #' @param df A nested dataframe.
 #'
 #' @return UI Code for a Shiny App.
-#' @export
 #'
-#'
-getUICode <- function(df) {
+getUICode_individual <- function(df) {
 
   inputType <- base::unique(df$input_type)
 
@@ -59,5 +84,28 @@ getUICode <- function(df) {
   }
 
   return(list(output))
+
+}
+
+
+#' Generate the UI Code for demoraphic questions
+#'
+#' Create the UI code for a Shiny app based on user-supplied questions. Possible
+#' question (input) types include numeric, text, multiple choice, or selection.
+#'
+#' @param df A nested dataframe.
+#'
+#' @return UI Code for a Shiny App.
+#' @export
+#'
+#' @examples
+#'
+#' getUICode(teaching_r_questions)
+#'
+getUICode <- function(df) {
+
+  nested <- nestUniqueQuestions(df)
+
+  purrr::map(nested$data, ~getUICode_individual(.x))
 
 }
