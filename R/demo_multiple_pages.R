@@ -63,8 +63,8 @@ demo_multiple_pages <- function() {
     shiny::observe({
       # code to switch the page after 500 milliseconds
       # shinyjs::delay(500, navPage(1))
-      shinyjs::toggleState(id = "prevBtn", condition = rv$question_page > 1)
-      shinyjs::toggleState(id = "nextBtn", condition = rv$question_page < NUM_PAGES)
+      shinyjs::toggleState(id = "prevBtn", condition = rv$question_page >= 1)
+      shinyjs::toggleState(id = "nextBtn", condition = rv$question_page <= NUM_PAGES)
       shinyjs::hide(selector = ".question_page")
       shinyjs::show(paste0("question", rv$question_page))
     })
@@ -96,7 +96,6 @@ demo_multiple_pages <- function() {
 
     # this does not work yet
     # getServerCode(teaching_r_questions)
-
 
   }
 
