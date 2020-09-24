@@ -2,7 +2,7 @@ library(shiny)
 library(shinyjs)
 library(shinyWidgets)
 
-NUM_PAGES <- 9
+NUM_PAGES <- nrow(nestUniqueQuestions(teaching_r_questions))
 
 # I created a local directory
 outputDir <- "~/Downloads/"
@@ -21,18 +21,18 @@ saveData <- function(data, userID) {
 
 ui <- fluidPage(
     useShinyjs(),
-    hidden(lapply(0:NUM_PAGES, function(i) {
+    hidden(lapply(0:(NUM_PAGES + 1), function(i) {
                 if (i < 1) {
                     div(class = "question_page",
                         id = paste0("question", i),
                         textInput("userID", "Enter your username."))
-                }else if (i >= 1 && i <= 8) {
+                }else if (i >= 1 && i <= NUM_PAGES) {
                     div(
                         class = "question_page",
                         id = paste0("question", i),
                         getUICode_individual(tidyr::unnest(nestUniqueQuestions(teaching_r_questions)[i,], cols = c(data)))
                     )
-                }else if (i == 9) {
+                }else if (i == (NUM_PAGES + 1)) {
                     div(class = "question_page",
                         id = paste0("question", i),
                         actionBttn("submit", "Submit"))
@@ -48,8 +48,8 @@ server <- function(input, output, session) {
     rv <- reactiveValues(question_page = 0)
 
     observe({
-        toggleState(id = "prevBtn", condition = rv$question_page > 1)
-        toggleState(id = "nextBtn", condition = rv$question_page < NUM_PAGES)
+        toggleState(id = "prevBtn", condition = rv$question_page >= 1)
+        toggleState(id = "nextBtn", condition = rv$question_page <= NUM_PAGES)
         hide(selector = ".question_page")
         show(paste0("question", rv$question_page))
     })
@@ -78,6 +78,10 @@ server <- function(input, output, session) {
 
     observeEvent(input$prevBtn, navPage(-1))
     observeEvent(input$nextBtn, navPage(1))
+
+    # this does not work
+    # getServerCode(teaching_r_questions)
+
 }
 
 shinyApp(ui, server)
