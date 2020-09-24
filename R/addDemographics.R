@@ -13,13 +13,11 @@ nestUniqueQuestions <- function(df) {
   # I've added the question_number but there has to be a better way to do this...
   df %>%
     dplyr::mutate(option = tidyr::replace_na(.data$option, "placeholder")) %>%
-    dplyr::group_by(.data$question) %>%
+    dplyr::group_by(.data$question, dependence) %>%
     tidyr::nest() %>%
     dplyr::ungroup() %>%
     dplyr::mutate(question_number = dplyr::row_number(), .before = .data$question) %>%
     tidyr::unnest(.data$data) %>%
-    ## Remove this when you figure out dependence !
-    dplyr::filter(is.na(.data$dependence)) %>%
     dplyr::group_by(.data$question_number) %>%
     tidyr::nest() %>%
     dplyr::ungroup()
@@ -38,7 +36,7 @@ getUICode_individual <- function(df) {
   if (inputType ==  "select") {
     output <-
       shinyWidgets::pickerInput(
-        inputId = base::unique(df$label),
+        inputId = base::unique(df$input_id),
         label = base::unique(df$question),
         choices = df$option,
         options = list(
@@ -48,13 +46,13 @@ getUICode_individual <- function(df) {
 
     output <-
       shinyWidgets::numericInputIcon(
-        inputId = base::unique(df$label),
+        inputId = base::unique(df$input_id),
         label = base::unique(df$question),
         value = df$option,
         icon = list(
-          #make the df$label sentence case in base R
-          base::paste0(base::toupper(base::substring(base::unique(df$label), 1,1)),
-                       base::tolower(base::substring(base::unique(df$label), 2)))
+          #make the df$input_id sentence case in base R
+          base::paste0(base::toupper(base::substring(base::unique(df$input_id), 1,1)),
+                       base::tolower(base::substring(base::unique(df$input_id), 2)))
         )
       )
 
@@ -62,14 +60,14 @@ getUICode_individual <- function(df) {
 
     output <-
       shiny::radioButtons(
-        inputId = base::unique(df$label),
+        inputId = base::unique(df$input_id),
         label = base::unique(df$question),
         choices = df$option
       )
   } else if (inputType == "text") {
 
     output <-
-      shiny::textInput(inputId = base::unique(df$label),
+      shiny::textInput(inputId = base::unique(df$input_id),
                 label = base::unique(df$question),
                 value = df$option)
 
@@ -77,10 +75,14 @@ getUICode_individual <- function(df) {
 
     output <-
       shiny::radioButtons(
-        inputId = base::unique(df$label),
+        inputId = base::unique(df$input_id),
         label = base::unique(df$question),
         choices = df$option
       )
+  }
+
+  if (!base::is.na(df$dependence)) {
+    output <- shinyjs::hidden(output)
   }
 
   return(list(output))
@@ -93,7 +95,7 @@ getUICode_individual <- function(df) {
 #' Create the UI code for a Shiny app based on user-supplied questions. Possible
 #' question (input) types include numeric, text, multiple choice, or selection.
 #'
-#' @param df A nested dataframe.
+#' @param df A user supplied dataframe in the format of teaching_r_questions.
 #'
 #' @return UI Code for a Shiny App.
 #' @export
@@ -109,3 +111,47 @@ getUICode <- function(df) {
   purrr::map(nested$data, ~getUICode_individual(.x))
 
 }
+
+
+
+#' Show dependence questions
+#'
+#' @param df The output of \code{\link{nestUniqueQuestions}}.
+#'
+#' @return NA; shows a dependence question in the UI.
+#'
+showDependence <- function(df) {
+
+  # if there is a dependence
+  if (!base::is.na(df$dependence)) {
+    # check that the input of that question's dependence
+    # is equal to its dependence value. If so,
+    # show the question.
+    if (input[[df$dependence]] == df$dependence_value) {
+      shinyjs::show(df$input_id)
+    }
+  }
+}
+
+
+
+#' Server code for adding survey questions
+#'
+#' Create the UI code for a Shiny app based on user-supplied questions. Possible
+#' question (input) types include numeric, text, multiple choice, or selection.
+#'
+#' @param df A user supplied dataframe in the format of teaching_r_questions.
+#'
+#' @return NA; server code
+#' @export
+#'
+getServerCode <- function(df) {
+
+  nested <- nestUniqueQuestions(df)
+
+  observe({
+    purrr::walk(nested$data, ~showDependence(.x))
+  })
+
+}
+
