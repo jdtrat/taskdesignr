@@ -11,7 +11,7 @@
 #'
 demo_multiple_pages <- function() {
 
-  NUM_PAGES <- 9
+  NUM_PAGES <- nrow(nestUniqueQuestions(teaching_r_questions))
 
   # I created a local directory
   outputDir <- "~/Downloads/"
@@ -30,19 +30,19 @@ demo_multiple_pages <- function() {
 
   ui <- shiny::fluidPage(
     shinyjs::useShinyjs(),
-    #for 0-9 pages (10 total), create hidden UI elements:
-    shinyjs::hidden(base::lapply(0:NUM_PAGES, function(i) {
+    #Create hidden UI elements to show one by one:
+    shinyjs::hidden(base::lapply(0:(NUM_PAGES + 1), function(i) {
       if (i < 1) {
         shiny::div(class = "question_page",
             id = paste0("question", i),
             shiny::textInput("userID", "Enter your username."))
-      }else if (i >= 1 && i <= 8) {
+      }else if (i >= 1 && i <= NUM_PAGES) {
         shiny::div(
           class = "question_page",
           id = paste0("question", i),
           getUICode_individual(tidyr::unnest(nestUniqueQuestions(taskdesignr::teaching_r_questions)[i,], cols = c(.data$data)))
         )
-      }else if (i == 9) {
+      }else if (i == (NUM_PAGES + 1)) {
         shiny::div(class = "question_page",
             id = paste0("question", i),
             shinyWidgets::actionBttn("submit", "Submit"))
@@ -50,7 +50,7 @@ demo_multiple_pages <- function() {
     })
     ),
     shiny::br(),
-    #always show actuin buttons
+    #always show action buttons
     shiny::actionButton("prevBtn", "< Previous"),
     shiny::actionButton("nextBtn", "Next >")
   )
@@ -93,6 +93,11 @@ demo_multiple_pages <- function() {
 
     shiny::observeEvent(input$prevBtn, navPage(-1))
     shiny::observeEvent(input$nextBtn, navPage(1))
+
+    # this does not work yet
+    # getServerCode(teaching_r_questions)
+
+
   }
 
   shiny::shinyApp(ui, server)
