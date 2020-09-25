@@ -62,6 +62,7 @@ getUICode_individual <- function(df) {
       shiny::radioButtons(
         inputId = base::unique(df$input_id),
         label = base::unique(df$question),
+        # selected = base::character(0),
         choices = df$option
       )
   } else if (inputType == "text") {
@@ -77,11 +78,13 @@ getUICode_individual <- function(df) {
       shiny::radioButtons(
         inputId = base::unique(df$input_id),
         label = base::unique(df$question),
+        # selected = base::character(0),
+        selected = "No",
         choices = df$option
       )
   }
 
-  if (!base::is.na(df$dependence)) {
+  if (!base::is.na(df$dependence[1])) {
     output <- shinyjs::hidden(output)
   }
 
@@ -117,23 +120,24 @@ getUICode <- function(df) {
 #' Show dependence questions
 #'
 #' @param df The output of \code{\link{nestUniqueQuestions}}.
+#' @param input Input from server
 #'
 #' @return NA; shows a dependence question in the UI.
 #'
-showDependence <- function(df) {
+showDependence <- function(input = input, df) {
+
+  #shiny::req(input[[df$dependence[1]]])
 
   # if there is a dependence
-  if (!base::is.na(df$dependence)) {
+  if (!base::is.na(df$dependence[1])) {
     # check that the input of that question's dependence
     # is equal to its dependence value. If so,
     # show the question.
-    if (input[[df$dependence]] == df$dependence_value) {
-      shinyjs::show(df$input_id)
+    if (input[[df$dependence[1]]] == df$dependence_value[1]) {
+      shinyjs::show(df$input_id[1])
     }
   }
 }
-
-
 
 #' Server code for adding survey questions
 #'
@@ -141,16 +145,17 @@ showDependence <- function(df) {
 #' question (input) types include numeric, text, multiple choice, or selection.
 #'
 #' @param df A user supplied dataframe in the format of teaching_r_questions.
+#' @param input Input from server
 #'
 #' @return NA; server code
 #' @export
 #'
-getServerCode <- function(df) {
+getServerCode <- function(input, df) {
 
   nested <- nestUniqueQuestions(df)
 
   observe({
-    purrr::walk(nested$data, ~showDependence(.x))
+    purrr::walk(nested$data, ~showDependence(input = input, df = .x))
   })
 
 }
