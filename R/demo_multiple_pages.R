@@ -95,7 +95,7 @@ demo_multiple_pages <- function() {
     shiny::observeEvent(input$nextBtn, navPage(1))
 
     # this does not work yet
-    # getServerCode(teaching_r_questions)
+    getServerCode(input = input, df = teaching_r_questions)
 
   }
 
