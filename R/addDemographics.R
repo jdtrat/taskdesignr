@@ -135,6 +135,8 @@ showDependence <- function(input = input, df) {
     # show the question.
     if (input[[df$dependence[1]]] == df$dependence_value[1]) {
       shinyjs::show(df$input_id[1])
+    } else {
+      shinyjs::hide(df$input_id[1])
     }
   }
 }
