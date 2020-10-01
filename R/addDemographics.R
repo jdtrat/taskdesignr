@@ -23,6 +23,27 @@ nestUniqueQuestions <- function(df) {
     dplyr::ungroup()
 }
 
+#' Check if a question is required
+#'
+#' This function is for internal use. It will check if a question in the
+#' user-supplied questions dataframe is required. If so, it will add the label
+#' with an asterisk. If not, it will just return the label.
+#'
+#' @param df The output of \code{\link{nestUniqueQuestions}}.
+#'
+#' @return A label with or without an asterisk to signify it is required.
+#'
+#'
+checkRequired_internal <- function(df) {
+
+  if (df$required[1] == TRUE) {
+    label <- shiny::tagList(base::unique(df$question), shiny::span("*", class = "required"))
+  } else if (df$required[1] == FALSE) {
+    label <- base::unique(df$question)
+  }
+  return(label)
+}
+
 #' Generate the UI Code for demoraphic questions
 #'
 #' @param df A nested dataframe.
@@ -37,7 +58,7 @@ getUICode_individual <- function(df) {
     output <-
       shinyWidgets::pickerInput(
         inputId = base::unique(df$input_id),
-        label = base::unique(df$question),
+        label = checkRequired_internal(df),
         choices = df$option,
         options = list(
           title = "Placeholder")
@@ -47,7 +68,7 @@ getUICode_individual <- function(df) {
     output <-
       shinyWidgets::numericInputIcon(
         inputId = base::unique(df$input_id),
-        label = base::unique(df$question),
+        label = checkRequired_internal(df),
         value = df$option,
         icon = list(
           #make the df$input_id sentence case in base R
@@ -61,7 +82,7 @@ getUICode_individual <- function(df) {
     output <-
       shiny::radioButtons(
         inputId = base::unique(df$input_id),
-        label = base::unique(df$question),
+        label = checkRequired_internal(df),
         # selected = base::character(0),
         choices = df$option
       )
@@ -69,7 +90,7 @@ getUICode_individual <- function(df) {
 
     output <-
       shiny::textInput(inputId = base::unique(df$input_id),
-                label = base::unique(df$question),
+                       label = checkRequired_internal(df),
                 value = df$option)
 
   } else if (inputType == "y/n") {
@@ -77,7 +98,7 @@ getUICode_individual <- function(df) {
     output <-
       shiny::radioButtons(
         inputId = base::unique(df$input_id),
-        label = base::unique(df$question),
+        label = checkRequired_internal(df),
         # selected = base::character(0),
         selected = "No",
         choices = df$option
@@ -140,6 +161,7 @@ showDependence <- function(input = input, df) {
     }
   }
 }
+
 
 #' Server code for adding survey questions
 #'
