@@ -30,9 +30,12 @@ demo_single_page <- function(questions) {
                      path = base::file.path(outputDir, fileName))
   }
 
+  demographicCSS <- ".required { color: red; }"
+
   # Define UI for application that draws a histogram
   ui <- shiny::fluidPage(
     shinyjs::useShinyjs(),
+    shinyjs::inlineCSS(demographicCSS),
     shiny::textInput("userID", "Enter your username."),
     getUICode(questions),
     shinyWidgets::actionBttn("submit", "Submit")
