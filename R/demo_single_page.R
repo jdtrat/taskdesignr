@@ -31,7 +31,7 @@ demo_single_page <- function(questions) {
   }
 
   # Define UI for application that draws a histogram
-  ui <- fluidPage(
+  ui <- shiny::fluidPage(
     shinyjs::useShinyjs(),
     shiny::textInput("userID", "Enter your username."),
     getUICode(questions),
@@ -64,6 +64,6 @@ demo_single_page <- function(questions) {
   }
 
   # Run the application
-  shinyApp(ui = ui, server = server)
+  shiny::shinyApp(ui = ui, server = server)
 
 }
