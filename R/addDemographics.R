@@ -12,7 +12,7 @@ nestUniqueQuestions <- function(df) {
   # replace any NA with "placeholder"
   # I've added the question_number but there has to be a better way to do this...
   df %>%
-    dplyr::mutate(option = tidyr::replace_na(.data$option, "placeholder")) %>%
+    dplyr::mutate(option = tidyr::replace_na(.data$option, "Placeholder")) %>%
     dplyr::group_by(.data$question, dependence) %>%
     tidyr::nest() %>%
     dplyr::ungroup() %>%
@@ -34,7 +34,7 @@ nestUniqueQuestions <- function(df) {
 #' @return A label with or without an asterisk to signify it is required.
 #'
 #'
-checkRequired_internal <- function(df) {
+addRequiredUI_internal <- function(df) {
 
   if (df$required[1] == TRUE) {
     label <- shiny::tagList(base::unique(df$question), shiny::span("*", class = "required"))
@@ -58,7 +58,7 @@ getUICode_individual <- function(df) {
     output <-
       shinyWidgets::pickerInput(
         inputId = base::unique(df$input_id),
-        label = checkRequired_internal(df),
+        label = addRequiredUI_internal(df),
         choices = df$option,
         options = list(
           title = "Placeholder")
@@ -68,7 +68,7 @@ getUICode_individual <- function(df) {
     output <-
       shinyWidgets::numericInputIcon(
         inputId = base::unique(df$input_id),
-        label = checkRequired_internal(df),
+        label = addRequiredUI_internal(df),
         value = df$option,
         icon = list(
           #make the df$input_id sentence case in base R
@@ -82,7 +82,7 @@ getUICode_individual <- function(df) {
     output <-
       shiny::radioButtons(
         inputId = base::unique(df$input_id),
-        label = checkRequired_internal(df),
+        label = addRequiredUI_internal(df),
         # selected = base::character(0),
         choices = df$option
       )
@@ -90,7 +90,7 @@ getUICode_individual <- function(df) {
 
     output <-
       shiny::textInput(inputId = base::unique(df$input_id),
-                       label = checkRequired_internal(df),
+                       label = addRequiredUI_internal(df),
                 value = df$option)
 
   } else if (inputType == "y/n") {
@@ -98,7 +98,7 @@ getUICode_individual <- function(df) {
     output <-
       shiny::radioButtons(
         inputId = base::unique(df$input_id),
-        label = checkRequired_internal(df),
+        label = addRequiredUI_internal(df),
         # selected = base::character(0),
         selected = "No",
         choices = df$option
@@ -132,7 +132,8 @@ getUICode <- function(df) {
 
   nested <- nestUniqueQuestions(df)
 
-  purrr::map(nested$data, ~getUICode_individual(.x))
+  shiny::tagList(purrr::map(nested$data, ~getUICode_individual(.x)),
+                 actionButton("submit", "Submit"))
 
 }
 
@@ -163,6 +164,54 @@ showDependence <- function(input = input, df) {
 }
 
 
+
+#' Get a character vector of required questions
+#'
+#' @param df
+#'
+#' @return A character vectors with the input ID of required questions.
+#' @export
+#'
+getRequired_internal <- function(df) {
+
+  getID <- function(df) {
+    if (df$required[1] == TRUE) {
+      base::unique(df$input_id)
+    }
+  }
+
+  nested <- nestUniqueQuestions(df)
+
+  out <- purrr::map_df(nested$data, ~base::list("required_id" = getID(.x)))
+  out <- out$required_id
+
+  return(out)
+
+}
+
+#' Check all required questions have been answered
+#'
+#' @param input Input from server
+#' @param required_inputs_vector The output of \code{\link{getRequired_internal}}.
+#'
+#' @return TRUE if all required questions have been answered. FALSE otherwise.
+#'
+
+checkRequired_internal <- function(input = input, required_inputs_vector) {
+
+  checkIndividual <- function(input_id) {
+    if (!is.null(input[[input_id]]) && input[[input_id]] != "") {
+      TRUE
+    } else {
+      FALSE
+    }
+  }
+
+  all(purrr::map_lgl(required_inputs_vector, ~checkIndividual(.x)))
+
+}
+
+
 #' Server code for adding survey questions
 #'
 #' Create the UI code for a Shiny app based on user-supplied questions. Possible
@@ -177,9 +226,13 @@ showDependence <- function(input = input, df) {
 getServerCode <- function(input, df) {
 
   nested <- nestUniqueQuestions(df)
+  required_vec <- getRequired_internal(df)
 
   observe({
     purrr::walk(nested$data, ~showDependence(input = input, df = .x))
+    shinyjs::toggleState(id = "submit",
+                         condition = checkRequired_internal(input = input,
+                                                            required_inputs_vector = required_vec))
   })
 
 }

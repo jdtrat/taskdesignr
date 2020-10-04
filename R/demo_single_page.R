@@ -37,8 +37,8 @@ demo_single_page <- function(questions) {
     shinyjs::useShinyjs(),
     shinyjs::inlineCSS(demographicCSS),
     shiny::textInput("userID", "Enter your username."),
-    getUICode(questions),
-    shinyWidgets::actionBttn("submit", "Submit")
+    getUICode(questions)
+    #shinyWidgets::actionBttn("submit", "Submit")
   )
 
   # Define server logic required to draw a histogram
@@ -61,6 +61,7 @@ demo_single_page <- function(questions) {
       )
       data
     })
+
 
     shiny::observeEvent(input$submit, {saveData(data = formData(), userID = user_id())})
 
