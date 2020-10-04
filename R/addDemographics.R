@@ -142,7 +142,7 @@ getUICode <- function(df) {
 #' Show dependence questions
 #'
 #' @param input Input from server
-#' @param df The output of \code{\link{nestUniqueQuestions}}.
+#' @param df The output of \code{\link{nestUniqueQuestions}} (indexed into the data column)..
 #'
 #' @return NA; shows a dependence question in the UI.
 #'
@@ -167,7 +167,7 @@ showDependence <- function(input = input, df) {
 
 #' Get a character vector of required questions
 #'
-#' @param df The output of \code{\link{nestUniqueQuestions}}.
+#' @param df The output of \code{\link{nestUniqueQuestions}} (indexing into the data column).
 #'
 #' @return A character vectors with the input ID of required questions.
 #' @export
