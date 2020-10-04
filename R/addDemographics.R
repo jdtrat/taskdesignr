@@ -141,8 +141,8 @@ getUICode <- function(df) {
 
 #' Show dependence questions
 #'
-#' @param df The output of \code{\link{nestUniqueQuestions}}.
 #' @param input Input from server
+#' @param df The output of \code{\link{nestUniqueQuestions}}.
 #'
 #' @return NA; shows a dependence question in the UI.
 #'
@@ -157,17 +157,17 @@ showDependence <- function(input = input, df) {
     # show the question.
     if (input[[df$dependence[1]]] == df$dependence_value[1]) {
       shinyjs::show(df$input_id[1])
+      df$required <- TRUE
     } else {
       shinyjs::hide(df$input_id[1])
+      df$required <- FALSE
     }
   }
 }
 
-
-
 #' Get a character vector of required questions
 #'
-#' @param df
+#' @param df The output of \code{\link{nestUniqueQuestions}}.
 #'
 #' @return A character vectors with the input ID of required questions.
 #' @export
@@ -180,9 +180,7 @@ getRequired_internal <- function(df) {
     }
   }
 
-  nested <- nestUniqueQuestions(df)
-
-  out <- purrr::map_df(nested$data, ~base::list("required_id" = getID(.x)))
+  out <- purrr::map_df(df, ~base::list("required_id" = getID(.x)))
   out <- out$required_id
 
   return(out)
@@ -226,7 +224,7 @@ checkRequired_internal <- function(input = input, required_inputs_vector) {
 getServerCode <- function(input, df) {
 
   nested <- nestUniqueQuestions(df)
-  required_vec <- getRequired_internal(df)
+  required_vec <- getRequired_internal(nested$data)
 
   observe({
     purrr::walk(nested$data, ~showDependence(input = input, df = .x))
