@@ -99,7 +99,7 @@ getUICode_individual <- function(df) {
       shiny::radioButtons(
         inputId = base::unique(df$input_id),
         label = addRequiredUI_internal(df),
-        # selected = base::character(0),
+        #selected = base::character(0),
         selected = "No",
         choices = df$option
       )
@@ -133,7 +133,7 @@ getUICode <- function(df) {
   nested <- nestUniqueQuestions(df)
 
   shiny::tagList(purrr::map(nested$data, ~getUICode_individual(.x)),
-                 actionButton("submit", "Submit"))
+                 shiny::actionButton("submit", "Submit"))
 
 }
 
@@ -148,7 +148,7 @@ getUICode <- function(df) {
 #'
 showDependence <- function(input = input, df) {
 
-  #shiny::req(input[[df$dependence[1]]])
+  #shiny::req(input[[df$]])
 
   # if there is a dependence
   if (!base::is.na(df$dependence[1])) {
