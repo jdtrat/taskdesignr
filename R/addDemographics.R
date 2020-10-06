@@ -83,7 +83,7 @@ getUICode_individual <- function(df) {
       shiny::radioButtons(
         inputId = base::unique(df$input_id),
         label = addRequiredUI_internal(df),
-        # selected = base::character(0),
+        selected = base::character(0),
         choices = df$option
       )
   } else if (inputType == "text") {
@@ -189,6 +189,23 @@ getRequired_internal <- function(df) {
 
 }
 
+
+
+#' Check if individual inputs have a value
+#'
+#' @param input Input from server
+#' @param input_id The input_id to check
+#'
+#' @return TRUE if the input has a value; false otherwise.
+#'
+checkIndividual <- function(input = input, input_id) {
+  if (!is.null(input[[input_id]]) && input[[input_id]] != "") {
+    TRUE
+  } else {
+    FALSE
+  }
+}
+
 #' Check all required questions have been answered
 #'
 #' @param input Input from server
@@ -198,16 +215,11 @@ getRequired_internal <- function(df) {
 #'
 
 checkRequired_internal <- function(input = input, required_inputs_vector) {
-  all(purrr::map_lgl(required_inputs_vector, ~checkIndividual(.x)))
+
+  all(purrr::map_lgl(.x = required_inputs_vector, ~checkIndividual(input = input, input_id = .x)))
 }
 
-checkIndividual <- function(input_id) {
-  if (!is.null(input[[input_id]]) && input[[input_id]] != "") {
-    TRUE
-  } else {
-    FALSE
-  }
-}
+
 
 #' Server code for adding survey questions
 #'
