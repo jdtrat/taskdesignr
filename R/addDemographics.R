@@ -99,8 +99,8 @@ getUICode_individual <- function(df) {
       shiny::radioButtons(
         inputId = base::unique(df$input_id),
         label = addRequiredUI_internal(df),
-        #selected = base::character(0),
-        selected = "No",
+        selected = base::character(0),
+        #selected = "No",
         choices = df$option
       )
   }
@@ -148,9 +148,11 @@ getUICode <- function(df) {
 #'
 showDependence <- function(input = input, df) {
 
-  #shiny::req(input[[df$]])
+  if(is.na(df$dependence_value[1]) || is.null(input[[df$dependence[1]]])) {
+    return()
+  }
 
-  # if there is a dependence
+ # if there is a dependence
   if (!base::is.na(df$dependence[1])) {
     # check that the input of that question's dependence
     # is equal to its dependence value. If so,
@@ -196,19 +198,16 @@ getRequired_internal <- function(df) {
 #'
 
 checkRequired_internal <- function(input = input, required_inputs_vector) {
-
-  checkIndividual <- function(input_id) {
-    if (!is.null(input[[input_id]]) && input[[input_id]] != "") {
-      TRUE
-    } else {
-      FALSE
-    }
-  }
-
   all(purrr::map_lgl(required_inputs_vector, ~checkIndividual(.x)))
-
 }
 
+checkIndividual <- function(input_id) {
+  if (!is.null(input[[input_id]]) && input[[input_id]] != "") {
+    TRUE
+  } else {
+    FALSE
+  }
+}
 
 #' Server code for adding survey questions
 #'
