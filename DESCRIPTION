@@ -24,4 +24,5 @@ Imports:
     rlang,
     shinyjs,
     readr,
-    tibble
+    tibble,
+    textreadr
