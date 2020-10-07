@@ -6,13 +6,14 @@
 #'
 #' @param questions A dataframe of questions of which to create a demographic form.
 #'
-#' @return
+#' @return A Shiny App
 #' @export
 #'
 #' @examples
 #'
+#' \dontrun{
 #' demo_single_page(teaching_r_questions)
-#'
+#' }
 demo_single_page <- function(questions) {
 
   # I created a local directory
