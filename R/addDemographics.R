@@ -13,7 +13,7 @@ nestUniqueQuestions <- function(df) {
   # I've added the question_number but there has to be a better way to do this...
   df %>%
     dplyr::mutate(option = tidyr::replace_na(.data$option, "Placeholder")) %>%
-    dplyr::group_by(.data$question, dependence) %>%
+    dplyr::group_by(.data$question, .data$dependence) %>%
     tidyr::nest() %>%
     dplyr::ungroup() %>%
     dplyr::mutate(question_number = dplyr::row_number(), .before = .data$question) %>%
@@ -125,9 +125,9 @@ getUICode_individual <- function(df) {
 #' @export
 #'
 #' @examples
-#'
+#' \dontrun{
 #' getUICode(teaching_r_questions)
-#'
+#' }
 getUICode <- function(df) {
 
   nested <- nestUniqueQuestions(df)
@@ -215,7 +215,6 @@ checkIndividual <- function(input = input, input_id) {
 #'
 
 checkRequired_internal <- function(input = input, required_inputs_vector) {
-
   all(purrr::map_lgl(.x = required_inputs_vector, ~checkIndividual(input = input, input_id = .x)))
 }
 
@@ -237,7 +236,7 @@ getServerCode <- function(input, df) {
   nested <- nestUniqueQuestions(df)
   required_vec <- getRequired_internal(nested$data)
 
-  observe({
+  shiny::observe({
     purrr::walk(nested$data, ~showDependence(input = input, df = .x))
     shinyjs::toggleState(id = "submit",
                          condition = checkRequired_internal(input = input,
