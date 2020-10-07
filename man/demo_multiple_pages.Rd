@@ -4,7 +4,10 @@
 \alias{demo_multiple_pages}
 \title{Demo Survey over multiple pages}
 \usage{
-demo_multiple_pages()
+demo_multiple_pages(questions)
+}
+\arguments{
+\item{questions}{A dataframe of questions of which to create a demographic form.}
 }
 \value{
 A Shiny app
@@ -15,4 +18,11 @@ Code was inspired by Dean Attali's advanced-shiny Github Repo.
 }
 \details{
 It requires shiny, shinyjs, and shinyWidgets.
+}
+\examples{
+
+\dontrun{
+demo_multiple_pages(teaching_r_questions)
+}
+
 }
