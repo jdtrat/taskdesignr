@@ -5,13 +5,21 @@
 #'
 #' It requires shiny, shinyjs, and shinyWidgets.
 #'
+#' @param questions A dataframe of questions of which to create a demographic form.
+#'
 #' @return A Shiny app
 #' @importFrom rlang .data
 #' @export
 #'
-demo_multiple_pages <- function() {
+#' @examples
+#'
+#' \dontrun{
+#' demo_multiple_pages(teaching_r_questions)
+#' }
+#'
+demo_multiple_pages <- function(questions) {
 
-  NUM_PAGES <- nrow(nestUniqueQuestions(teaching_r_questions))
+  NUM_PAGES <- nrow(nestUniqueQuestions(questions))
 
   # I created a local directory
   outputDir <- "~/Downloads/"
@@ -28,6 +36,8 @@ demo_multiple_pages <- function() {
                      path = base::file.path(outputDir, fileName))
   }
 
+  demographicCSS <- ".required { color: red; }"
+
   ui <- shiny::fluidPage(
     shinyjs::useShinyjs(),
     #Create hidden UI elements to show one by one:
@@ -40,7 +50,7 @@ demo_multiple_pages <- function() {
         shiny::div(
           class = "question_page",
           id = paste0("question", i),
-          getUICode_individual(tidyr::unnest(nestUniqueQuestions(taskdesignr::teaching_r_questions)[i,], cols = c(.data$data)))
+          getUICode_individual(tidyr::unnest(nestUniqueQuestions(questions)[i,], cols = c(.data$data)))
         )
       }else if (i == (NUM_PAGES + 1)) {
         shiny::div(class = "question_page",
@@ -95,7 +105,7 @@ demo_multiple_pages <- function() {
     shiny::observeEvent(input$nextBtn, navPage(1))
 
     # this does not work yet
-    getServerCode(input = input, df = teaching_r_questions)
+    getServerCode(input = input, df = questions)
 
   }
 
