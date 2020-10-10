@@ -33,14 +33,14 @@ create_survey_questions <- function() {
                           "Create a Question")
     ),
     shiny::mainPanel(
-      tableOutput("table")
+      shiny::tableOutput("table")
     )
 
   )
 
   server <- function(input, output, session) {
 
-    observe({
+    shiny::observe({
       if (input$question_required == TRUE) {
         shinyjs::show(id = "question_dependence")
         shiny::updateSelectInput(session, "question_dependence", choices = "question")
@@ -54,7 +54,7 @@ create_survey_questions <- function() {
     })
 
 
-    output$table <- renderTable({
+    output$table <- shiny::renderTable({
 
       data.frame(question = input$question_title,
                  option = "FILL LATER",
