@@ -1,4 +1,3 @@
-
 #' Get Unique Questions in a Nested Dataframe
 #'
 #' @param df A user supplied dataframe in the format of teaching_r_questions.
@@ -66,15 +65,10 @@ getUICode_individual <- function(df) {
   } else if (inputType == "numeric") {
 
     output <-
-      shinyWidgets::numericInputIcon(
+      shiny::numericInput(
         inputId = base::unique(df$input_id),
         label = addRequiredUI_internal(df),
-        value = df$option,
-        icon = list(
-          #make the df$input_id sentence case in base R
-          base::paste0(base::toupper(base::substring(base::unique(df$input_id), 1,1)),
-                       base::tolower(base::substring(base::unique(df$input_id), 2)))
-        )
+        value = df$option
       )
 
   } else if (inputType == "mc") {
@@ -100,7 +94,6 @@ getUICode_individual <- function(df) {
         inputId = base::unique(df$input_id),
         label = addRequiredUI_internal(df),
         selected = base::character(0),
-        #selected = "No",
         choices = df$option
       )
   }
@@ -132,12 +125,15 @@ getUICode <- function(df) {
 
   nested <- nestUniqueQuestions(df)
 
-  shiny::tagList(purrr::map(nested$data, ~getUICode_individual(.x)),
+  shiny::tagList(shinyjs::useShinyjs(),
+                 shinyjs::inlineCSS(".required { color: red; }"),
+                 shinyjs::hidden(shiny::textInput(inputId = "userID",
+                                                  label = "Enter your username.",
+                                                  value = "NO_USER_ID")),
+                 purrr::map(nested$data, ~getUICode_individual(.x)),
                  shiny::actionButton("submit", "Submit"))
 
 }
-
-
 
 #' Show dependence questions
 #'
@@ -227,16 +223,23 @@ checkRequired_internal <- function(input = input, required_inputs_vector) {
 #'
 #' @param df A user supplied dataframe in the format of teaching_r_questions.
 #' @param input Input from server
+#' @param session Session from server
 #'
 #' @return NA; server code
 #' @export
 #'
-getServerCode <- function(input, df) {
+getServerCode <- function(input, df, session) {
 
   nested <- nestUniqueQuestions(df)
   required_vec <- getRequired_internal(nested$data)
 
   shiny::observe({
+
+      query <- shiny::parseQueryString(session$clientData$url_search)
+      if (!base::is.null(query[["user_id"]])) {
+        updateTextInput(session, inputId = "userID", value = query[["user_id"]])
+      }
+
     purrr::walk(nested$data, ~showDependence(input = input, df = .x))
     shinyjs::toggleState(id = "submit",
                          condition = checkRequired_internal(input = input,
