@@ -50,7 +50,7 @@ demo_multiple_pages <- function(questions) {
         shiny::div(
           class = "question_page",
           id = paste0("question", i),
-          getUICode_individual(tidyr::unnest(nestUniqueQuestions(questions)[i,], cols = c(.data$data)))
+          surveyUI_individual(tidyr::unnest(nestUniqueQuestions(questions)[i,], cols = c(.data$data)))
         )
       }else if (i == (NUM_PAGES + 1)) {
         shiny::div(class = "question_page",
@@ -105,7 +105,7 @@ demo_multiple_pages <- function(questions) {
     shiny::observeEvent(input$nextBtn, navPage(1))
 
     # this does not work yet
-    getServerCode(input = input, df = questions)
+    surveyServer(input = input, df = questions)
 
   }
 

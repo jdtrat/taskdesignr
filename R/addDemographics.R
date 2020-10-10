@@ -49,7 +49,7 @@ addRequiredUI_internal <- function(df) {
 #'
 #' @return UI Code for a Shiny App.
 #'
-getUICode_individual <- function(df) {
+surveyUI_individual <- function(df) {
 
   inputType <- base::unique(df$input_type)
 
@@ -119,9 +119,9 @@ getUICode_individual <- function(df) {
 #'
 #' @examples
 #' \dontrun{
-#' getUICode(teaching_r_questions)
+#' surveyUI(teaching_r_questions)
 #' }
-getUICode <- function(df) {
+surveyUI <- function(df) {
 
   nested <- nestUniqueQuestions(df)
 
@@ -130,7 +130,7 @@ getUICode <- function(df) {
                  shinyjs::hidden(shiny::textInput(inputId = "userID",
                                                   label = "Enter your username.",
                                                   value = "NO_USER_ID")),
-                 purrr::map(nested$data, ~getUICode_individual(.x)),
+                 purrr::map(nested$data, ~surveyUI_individual(.x)),
                  shiny::actionButton("submit", "Submit"))
 
 }
@@ -228,7 +228,7 @@ checkRequired_internal <- function(input = input, required_inputs_vector) {
 #' @return NA; server code
 #' @export
 #'
-getServerCode <- function(input, df, session) {
+surveyServer <- function(input, df, session) {
 
   nested <- nestUniqueQuestions(df)
   required_vec <- getRequired_internal(nested$data)
@@ -237,7 +237,7 @@ getServerCode <- function(input, df, session) {
 
       query <- shiny::parseQueryString(session$clientData$url_search)
       if (!base::is.null(query[["user_id"]])) {
-        updateTextInput(session, inputId = "userID", value = query[["user_id"]])
+        shiny::updateTextInput(session, inputId = "userID", value = query[["user_id"]])
       }
 
     purrr::walk(nested$data, ~showDependence(input = input, df = .x))

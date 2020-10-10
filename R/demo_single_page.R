@@ -33,12 +33,12 @@ demo_single_page <- function(questions) {
 
 
   ui <- shiny::fluidPage(
-    getUICode(questions)
+    surveyUI(questions)
   )
 
   server <- function(input, output, session) {
 
-    getServerCode(input = input, df = questions, session = session)
+    surveyServer(input = input, df = questions, session = session)
 
     formData <- shiny::reactive({
       data <- tibble::tribble(~userID, ~question, ~response,

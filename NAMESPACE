@@ -2,10 +2,11 @@
 
 export("%>%")
 export(addInformedConsent)
+export(create_survey_questions)
 export(demo_multiple_pages)
 export(demo_single_page)
 export(getRequired_internal)
-export(getServerCode)
-export(getUICode)
+export(surveyServer)
+export(surveyUI)
 importFrom(magrittr,"%>%")
 importFrom(rlang,.data)
