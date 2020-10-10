@@ -31,23 +31,17 @@ demo_single_page <- function(questions) {
                      path = base::file.path(outputDir, fileName))
   }
 
-  demographicCSS <- ".required { color: red; }"
+
 
   # Define UI for application that draws a histogram
   ui <- shiny::fluidPage(
-    shinyjs::useShinyjs(),
-    shinyjs::inlineCSS(demographicCSS),
-    shiny::textInput("userID", "Enter your username."),
     getUICode(questions)
-    #shinyWidgets::actionBttn("submit", "Submit")
   )
 
   # Define server logic required to draw a histogram
-  server <- function(input, output) {
+  server <- function(input, output, session) {
 
-    getServerCode(input = input, df = questions)
-
-    user_id <- shiny::reactive({paste0(input$userID)})
+    getServerCode(input = input, df = questions, session = session)
 
     formData <- shiny::reactive({
       data <- tibble::tribble(~userID, ~question, ~response,
@@ -64,7 +58,7 @@ demo_single_page <- function(questions) {
     })
 
 
-    shiny::observeEvent(input$submit, {saveData(data = formData(), userID = user_id())})
+    shiny::observeEvent(input$submit, {saveData(data = formData(), userID = input$userID)})
 
   }
 
