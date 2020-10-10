@@ -32,13 +32,10 @@ demo_single_page <- function(questions) {
   }
 
 
-
-  # Define UI for application that draws a histogram
   ui <- shiny::fluidPage(
     getUICode(questions)
   )
 
-  # Define server logic required to draw a histogram
   server <- function(input, output, session) {
 
     getServerCode(input = input, df = questions, session = session)
