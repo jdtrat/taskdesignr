@@ -26,3 +26,7 @@ Imports:
     readr,
     tibble,
     textreadr
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
