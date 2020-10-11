@@ -33,7 +33,7 @@ demo_multiple_pages <- function(questions) {
 
     # Write the file to the local system
     readr::write_csv(data,
-                     path = base::file.path(outputDir, fileName))
+                     file = base::file.path(outputDir, fileName))
   }
 
   demographicCSS <- ".required { color: red; }"
