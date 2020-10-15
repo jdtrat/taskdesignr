@@ -80,14 +80,15 @@ wordToMarkdown <- function(file, output = NULL) {
 displayDocument <- function(file) {
 
   if (base::grepl(".docx", file)) {
-    markdownFile <- wordToMarkdown(file)
+    markdownFile <- wordToMarkdown(file, output = NULL)
+    base::on.exit(base::unlink(markdownFile))
   } else if (base::grepl(".md", file)) {
     markdownFile <- file
   } else {
     stop("Invalid file type. Please add a Markdown .md or Word .docx file.")
   }
 
-  shiny::includeMarkdown(markdownFile)
+    shiny::includeMarkdown(markdownFile)
 
 }
 
