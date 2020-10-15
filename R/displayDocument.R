@@ -9,7 +9,7 @@
 #' @return The same file as a Markdown document.
 #' @export
 #'
-wordToMarkdown <- function(file) {
+wordToMarkdown_old <- function(file) {
 
   # This extracts the file name before the . at the extension.
   fileName <- base::regmatches(file, base::regexpr("([^.]+)", file))
@@ -22,6 +22,36 @@ wordToMarkdown <- function(file) {
 
   # set the output file as the newly converted markdown document
   outputFile <- base::paste0(fileName, ".md")
+
+  return(outputFile)
+
+}
+
+#' Convert a Word (docx) to a Markdown (md) file
+#'
+#' This function converts a word document to a markdown file.
+#' If output path is NULL (as default), the function will save this to a temporary path.
+#'
+#' @param file The path to your .docx file.
+#' @param output The path to save your new markdown file
+#'
+#' @return The same file as a Markdown document.
+#' @export
+#'
+#' @examples
+#'
+#' #ADD LATER
+#'
+wordToMarkdown <- function(file, output = NULL) {
+
+
+  if (base::is.null(output)) {
+    outputFile <- base::tempfile(fileext = ".md")
+  } else {
+    outputFile <- output
+  }
+
+  rmarkdown::pandoc_convert(input = file, to = "markdown", output = outputFile)
 
   return(outputFile)
 
@@ -91,3 +121,9 @@ demo_displayDocument <- function(file) {
   shiny::shinyApp(ui = ui, server = server)
 
 }
+
+
+
+
+
+
