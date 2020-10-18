@@ -19,6 +19,7 @@ That is, should it only appear if a different question has a specific value?
 This column contains the input_id of whatever question this one depends upon.
 \item dependence_value: This column contains the specific value that the dependence
 question must take for this question (row) to be shown.
+\item required: logical TRUE/FALSE signifying if a question is required.
 }
 }
 }

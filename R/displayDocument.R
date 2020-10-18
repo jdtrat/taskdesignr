@@ -96,7 +96,7 @@ displayDocument <- function(file) {
 #' Demo for displaying a document in a Shiny app.
 #'
 #' This function provides a minimal example of using the
-#' \code{\ref{displayDocument}} function within your Shiny application to
+#' \code{\link{displayDocument}} function within your Shiny application to
 #' display a document.
 #' @param file The file (path) containing a document to display. Can be .docx or .md file type.
 #'
