@@ -16,6 +16,7 @@
 #' This column contains the input_id of whatever question this one depends upon.
 #' * dependence_value: This column contains the specific value that the dependence
 #' question must take for this question (row) to be shown.
+#' * required: logical TRUE/FALSE signifying if a question is required.
 #' }
 #' @source D'Agostino McGowan Data Science Lab at Wake Forest University.
 "teaching_r_questions"
