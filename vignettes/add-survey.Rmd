@@ -17,7 +17,7 @@ library(taskdesignr)
 
 # Introduction {#introduction}
 
-Many experimental tasks require some type of survey. A clear example is a simple demographic form. Our package allows you to easily create questionnaires using Shiny.[^1] We provide two functions to do this: `surveyUI()` and `surveyServer()`. To illustrate them in use, we will create a questionnaire from McGowan et al (2021). These questions, build into the taskdesignr package, follow a specific format:
+Many experimental tasks require some type of survey. A clear example is a simple demographic form. Our package allows you to easily create questionnaires using Shiny.[^1] We provide two functions to do this: `surveyUI()` and `surveyServer()`. Both of these functions take in a data frame containing question information that follows a specific format. To illustrate them in use, we will show you a questionnaire from McGowan et al (2021) that is built into the `taskdesignr` package:
 
 [^1]: We assume that you are familiar with the basic layout of a Shiny application. If not, please check out RStudio's [great resources](https://shiny.rstudio.com/tutorial/) before completing this vignette.
 
@@ -60,7 +60,7 @@ As we noted in the [introduction](#Introduction), this row shows us that the que
 
 We can also tell that there are no dependency questions. This means that no matter what value you enter, no follow-up question will appear. Lastly, we know this is a required question.
 
-![Numeric input example](images/Screen Shot 2020-10-17 at 8.34.02 PM.png){width="300"}
+![Numeric input example](images/numeric_example.png){style="display: block; margin: 1em auto" width="300"}
 
 ## Multiple Choice (mc) Input {#multiple_choice}
 
@@ -73,7 +73,7 @@ taskdesignr::teaching_r_questions %>%
 
 Unlike numeric inputs, the `option` column represents each of the possible responses for this question. You may notice that the fifth row of this question has *NA* in the `option` column and "text" in the `input_type` column. We will discuss this in more detail [below](#Question Dependencies), but for now note that this question has a dependent. That is, if a specific option is chosen for this question, a new one will appear below. In this case, a question that accepts text as its input.
 
-![Multiple Choice Example](images/Screen Shot 2020-10-17 at 8.34.57 PM.png){width="300"}
+![Multiple Choice Example](images/mc_example.png){style="display: block; margin: 1em auto" width="300"}
 
 ## Text Input {#text_input}
 
@@ -86,9 +86,9 @@ taskdesignr::teaching_r_questions %>%
 
 It's important to note that the `option` column for text-based inputs can be left blank (i.e. NA) or contain a character string. If they are left empty, the text field will display "Placeholder." Otherwise, the character string will be displayed:
 
-![Text input placeholder](images/Screen Shot 2020-10-17 at 8.17.58 PM.png){width="381"}
+![Text input placeholder](images/text_input_placeholder.png){style="display: block; margin: 1em auto" width="300"}
 
-![Text input character string](images/Screen Shot 2020-10-17 at 8.19.33 PM.png){width="381" height="90"}
+![Text input character string](images/text_input_character_string.png){style="display: block; margin: 1em auto" width="300" height="71"}
 
 ## Select Input
 
@@ -104,7 +104,7 @@ taskdesignr::teaching_r_questions %>%
   dplyr::pull(option)
 ```
 
-![Select input example](images/Screen Shot 2020-10-17 at 8.35.58 PM.png){width="300"}
+![Select input example](images/select_input_example.png){style="display: block; margin: 1em auto" width="300"}
 
 ## Yes or No (y/n) Input
 
@@ -115,7 +115,7 @@ taskdesignr::teaching_r_questions %>%
   dplyr::filter(input_id == "learned_r")
 ```
 
-![Yes or No (y/n) input example](images/Screen Shot 2020-10-17 at 8.36.38 PM.png){width="300"}
+![Yes or No (y/n) input example](images/yes_no_example.png){style="display: block; margin: 1em auto" width="300"}
 
 # Question Dependencies
 
@@ -128,16 +128,42 @@ taskdesignr::teaching_r_questions %>%
 
 Focusing on the columns `dependence` and `dependence_value`, we see that the text-based question will only show if the multiple choice one, with the input id of "gender" takes on the value "Prefer to self describe." That is, a question with non *NA* values in the `dependence` and `dependence_value` columns mean that it will only show if the question with the input id from `dependence` takes on the value from `dependence_value`. This can be seen below:
 
-![](images/Screen Shot 2020-10-17 at 8.58.48 PM.png){style="display: block; margin: 1em auto" width="300"}
+![](images/dependency_example_1.png){style="display: block; margin: 1em auto" width="300"}
 
-![](images/Screen Shot 2020-10-17 at 8.59.02 PM.png){style="display: block; margin: 1em auto" width="300"}
+![](images/dependency_example_2.png){style="display: block; margin: 1em auto" width="300"}
 
-# Basic Survey in Shiny
+# Implementing Surveys in Shiny
 
-To see a survey in action, please run the following:[^4]
+## Main Functions
 
-[^4]: By clicking submit in the Shiny app, your responses may be downloaded.
+### UI Function
+
+`surveyUI()` takes in a data frame of the form described above. The documentation for it can be accessed by typing `?taskdesignr::surveyUI()` in the console.
+
+### Server Function 
+
+`surveyServer()` takes in a data frame of the form described above. It also takes in the input and session arguments that allow it to interface with the Shiny app. The documentation for it can be accessed by typing `?taskdesignr::surveyServer()` in the console.
+
+## Basic Survey
+
+A minimal example of a survey can be created with this template:
 
 ```{r run survey, eval = FALSE}
-taskdesignr::demo_single_page(taskdesignr::teaching_r_questions)
+ui <- shiny::fluidPage(
+  taskdesignr::surveyUI(df = taskdesignr::teaching_r_questions)
+)
+
+server <- function(input, output, seshion) {
+  taskdesignr::surveyServer(input = input, 
+                            df = taskdesignr::teaching_r_questions,
+                            session = session)
+}
+
+shiny::shinyApp(ui = ui, server = server)
 ```
+
+## Advanced Features
+
+### User Tracking
+
+Built into the survey is the ability to track users based on URL parameters. If you deploy your survey on [shinyapps.io](shinyapps.io), or run it locally for experiments, you can add a URL parameter after the backslash as follows: `?user_id=12345`. A live demo can be found here: <https://jdtrat-apps.shinyapps.io/taskdesignr_survey_user_tracking/?user_id=hadley>
