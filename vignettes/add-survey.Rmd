@@ -172,6 +172,10 @@ Focusing on the columns `dependence` and `dependence_value`, we see that the tex
 
 Survey designers can define questions that must be answered by adding the value TRUE to the `required` column. If a required question is not answered, the user will not be able to submit their responses.
 
+![Required question is not answered. User cannot submit their response.](images/required_submit_disabled.png){style="display: block; margin: 1em auto" width="300"}
+
+![Required question is answered. User can submit their response.](images/required_submit_enabled.png){style="display: block; margin: 1em auto" width="300"}
+
 ### User Tracking
 
 Built into the survey is the ability to track users based on URL parameters. If you deploy your survey on [shinyapps.io](shinyapps.io), or run it locally for experiments, you can add a URL parameter after the backslash as follows: `?user_id=12345`. A live demo can be found here: <https://jdtrat-apps.shinyapps.io/taskdesignr_survey_user_tracking/?user_id=hadley>
