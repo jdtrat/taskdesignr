@@ -49,7 +49,7 @@ addRequiredUI_internal <- function(df) {
 #'
 #' @return UI Code for a Shiny App.
 #'
-surveyUI_individual <- function(df) {
+surveyOutput_individual <- function(df) {
 
   inputType <- base::unique(df$input_type)
 
@@ -119,9 +119,9 @@ surveyUI_individual <- function(df) {
 #'
 #' @examples
 #' \dontrun{
-#' surveyUI(teaching_r_questions)
+#' surveyOutput(teaching_r_questions)
 #' }
-surveyUI <- function(df) {
+surveyOutput <- function(df) {
 
   nested <- nestUniqueQuestions(df)
 
@@ -130,7 +130,7 @@ surveyUI <- function(df) {
                  shinyjs::hidden(shiny::textInput(inputId = "userID",
                                                   label = "Enter your username.",
                                                   value = "NO_USER_ID")),
-                 purrr::map(nested$data, ~surveyUI_individual(.x)),
+                 purrr::map(nested$data, ~surveyOutput_individual(.x)),
                  shiny::actionButton("submit", "Submit"))
 
 }
@@ -228,7 +228,7 @@ checkRequired_internal <- function(input = input, required_inputs_vector) {
 #' @return NA; server code
 #' @export
 #'
-surveyServer <- function(input, df, session) {
+renderSurvey <- function(input, df, session) {
 
   nested <- nestUniqueQuestions(df)
   required_vec <- getRequired_internal(nested$data)

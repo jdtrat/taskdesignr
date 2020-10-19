@@ -30,7 +30,7 @@ ui <- fluidPage(
                     div(
                         class = "question_page",
                         id = paste0("question", i),
-                        surveyUI_individual(tidyr::unnest(nestUniqueQuestions(teaching_r_questions)[i,], cols = c(data)))
+                        surveyOutput_individual(tidyr::unnest(nestUniqueQuestions(teaching_r_questions)[i,], cols = c(data)))
                     )
                 }else if (i == (NUM_PAGES + 1)) {
                     div(class = "question_page",
@@ -80,7 +80,7 @@ server <- function(input, output, session) {
     observeEvent(input$nextBtn, navPage(1))
 
     # this does not work
-    # surveyServer(teaching_r_questions)
+    # renderSurvey(teaching_r_questions)
 
 }
 

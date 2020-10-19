@@ -9,13 +9,13 @@ ui <- fluidPage(
                 "The user id can be accessed within a reactive Shiny context with `input$userID`.",
                 style = "font-weight: 360, line-height: 1.1;"),
               p("?user_id=123456", style = "font-weight: 500; line-height: 1.1"),
-              surveyUI(teaching_r_questions[1,]),
+              surveyOutput(teaching_r_questions[1,]),
               hr(),
               textOutput("user_id"))
 )
 
 server <- function(input, output, session) {
-    surveyServer(input, teaching_r_questions[1,], session)
+    renderSurvey(input, teaching_r_questions[1,], session)
     output$user_id <- renderText({
         base::paste0("User ID: ", input$userID)
     })
