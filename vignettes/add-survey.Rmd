@@ -17,7 +17,7 @@ library(taskdesignr)
 
 # Introduction {#introduction}
 
-Many experimental tasks require some type of survey. A clear example is a simple demographic form. Our package allows you to easily create questionnaires using Shiny.[^1] We provide two functions to do this: `surveyUI()` and `surveyServer()`. Both of these functions take in a data frame containing question information that follows a specific format. To illustrate them in use, we will show you a questionnaire from McGowan et al (2021) that is built into the `taskdesignr` package:
+Many experimental tasks require some type of survey. A clear example is a simple demographic form. Our package allows you to easily create questionnaires using Shiny.[^1] We provide two functions to do this: `surveyOutput()` and `renderSurvey()`. Both of these functions take in a data frame containing question information that follows a specific format. To illustrate them in use, we will show you a questionnaire from McGowan et al (2021) that is built into the `taskdesignr` package:
 
 [^1]: We assume that you are familiar with the basic layout of a Shiny application. If not, please check out RStudio's [great resources](https://shiny.rstudio.com/tutorial/) before completing this vignette.
 
@@ -58,7 +58,9 @@ As we noted in the [introduction](#Introduction), this row shows us that the que
 
 > It is important to note that the `option` column for numeric inputs provides the default value, but for other types -- as we will see -- provides the possible options for a question.
 
-We can also tell that there are no dependency questions. This means that no matter what value you enter, no follow-up question will appear. Lastly, we know this is a required question.
+We can also tell that there are no dependency questions. This means that no matter what value you enter, no follow-up question will appear. Lastly, we know this is a required question.[^2]
+
+[^2]: Required question functionality will be discussed in more detail in the section [Required Questions](#required_questions).
 
 ![Numeric input example](images/numeric_example.png){style="display: block; margin: 1em auto" width="300"}
 
@@ -71,7 +73,7 @@ taskdesignr::teaching_r_questions %>%
   dplyr::filter(input_id == "gender" | input_id == "self_describe_gender")
 ```
 
-Unlike numeric inputs, the `option` column represents each of the possible responses for this question. You may notice that the fifth row of this question has *NA* in the `option` column and "text" in the `input_type` column. We will discuss this in more detail [below](#Question Dependencies), but for now note that this question has a dependent. That is, if a specific option is chosen for this question, a new one will appear below. In this case, a question that accepts text as its input.
+Unlike numeric inputs, the `option` column represents each of the possible responses for this question. You may notice that the fifth row of this question has *NA* in the `option` column and "text" in the `input_type` column. We will discuss this in more detail [below](#Question%20Dependencies), but for now note that this question has a dependent. That is, if a specific option is chosen for this question, a new one will appear below. In this case, a question that accepts text as its input.
 
 ![Multiple Choice Example](images/mc_example.png){style="display: block; margin: 1em auto" width="300"}
 
@@ -92,11 +94,11 @@ It's important to note that the `option` column for text-based inputs can be lef
 
 ## Select Input
 
-Select inputs are great when there are many potential, discretely defined, response choices.[^2] An example is the question "What was your first language?" contains `r teaching_r_questions %>% dplyr::filter(question == "What was your first language?") %>% dplyr::count()` rows because there are that many options to choose from:[^3]
+Select inputs are great when there are many potential, discretely defined, response choices.[^3] An example is the question "What was your first language?" contains `r teaching_r_questions %>% dplyr::filter(question == "What was your first language?") %>% dplyr::count()` rows because there are that many options to choose from:[^4]
 
-[^2]: As of October 2020, these do not support multiple options selected at once, though we anticipate adding this functionality in the future.
+[^3]: As of October 2020, these do not support multiple options selected at once, though we anticipate adding this functionality in the future.
 
-[^3]: Note the presence of the NA in the output above. This deals with question dependencies, which is explained in detail in the section [Question Dependencies](\#Question Dependencies).
+[^4]: Note the presence of the NA in the output above. This deals with question dependencies, which is explained in detail in the section [Dependency Questions](#Question%20Dependencies).
 
 ```{r show first language options, echo = FALSE}
 taskdesignr::teaching_r_questions %>%
@@ -117,7 +119,41 @@ taskdesignr::teaching_r_questions %>%
 
 ![Yes or No (y/n) input example](images/yes_no_example.png){style="display: block; margin: 1em auto" width="300"}
 
-# Question Dependencies
+# Implementing Surveys in Shiny
+
+## Main Functions
+
+### UI Function
+
+`surveyOutput()` takes in a data frame of the form described above. The documentation for it can be accessed by typing `?taskdesignr::surveyOutput()` in the console.
+
+### Server Function
+
+`renderSurvey()` takes in a data frame of the form described above. It also takes in the input and session arguments that allow it to interface with the Shiny app. The documentation for it can be accessed by typing `?taskdesignr::renderSurvey()` in the console.
+
+## Basic Survey
+
+A minimal example of a survey can be created with this template:
+
+```{r run survey, eval = FALSE}
+ui <- shiny::fluidPage(
+  taskdesignr::surveyOutput(df = taskdesignr::teaching_r_questions)
+)
+
+server <- function(input, output, seshion) {
+  taskdesignr::renderSurvey(input = input, 
+                            df = taskdesignr::teaching_r_questions,
+                            session = session)
+}
+
+shiny::shinyApp(ui = ui, server = server)
+```
+
+Please note that the UI comes with a "Submit" button included. Survey designers can customize actions by using the call `input$submit`. Some examples would be saving or displaying user responses. An example of that can be found [here](https://jdtrat-apps.shinyapps.io/taskdesignr_survey_submit).
+
+## Advanced Features
+
+### Dependency Questions
 
 We use the term question dependencies in reference to the situations where a question should only be shown (i.e. asked) if a specific response is given to a preceding question. The questions included with the `taskdesignr` package contain many dependencies. One example we've seen discussing [multiple choice](#multiple_choice) and [text-based](#text_input) questions is the dependent for "Which best describes your gender?"
 
@@ -132,37 +168,9 @@ Focusing on the columns `dependence` and `dependence_value`, we see that the tex
 
 ![](images/dependency_example_2.png){style="display: block; margin: 1em auto" width="300"}
 
-# Implementing Surveys in Shiny
+### Required Questions {#required_questions}
 
-## Main Functions
-
-### UI Function
-
-`surveyUI()` takes in a data frame of the form described above. The documentation for it can be accessed by typing `?taskdesignr::surveyUI()` in the console.
-
-### Server Function 
-
-`surveyServer()` takes in a data frame of the form described above. It also takes in the input and session arguments that allow it to interface with the Shiny app. The documentation for it can be accessed by typing `?taskdesignr::surveyServer()` in the console.
-
-## Basic Survey
-
-A minimal example of a survey can be created with this template:
-
-```{r run survey, eval = FALSE}
-ui <- shiny::fluidPage(
-  taskdesignr::surveyUI(df = taskdesignr::teaching_r_questions)
-)
-
-server <- function(input, output, seshion) {
-  taskdesignr::surveyServer(input = input, 
-                            df = taskdesignr::teaching_r_questions,
-                            session = session)
-}
-
-shiny::shinyApp(ui = ui, server = server)
-```
-
-## Advanced Features
+Survey designers can define questions that must be answered by adding the value TRUE to the `required` column. If a required question is not answered, the user will not be able to submit their responses.
 
 ### User Tracking
 
