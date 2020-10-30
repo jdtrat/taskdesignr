@@ -136,11 +136,12 @@ taskdesignr::teaching_r_questions %>%
 A minimal example of a survey can be created with this template:
 
 ```{r run survey, eval = FALSE}
+library(taskdesignr)
 ui <- shiny::fluidPage(
   taskdesignr::surveyOutput(df = taskdesignr::teaching_r_questions)
 )
 
-server <- function(input, output, seshion) {
+server <- function(input, output, session) {
   taskdesignr::renderSurvey(input = input, 
                             df = taskdesignr::teaching_r_questions,
                             session = session)
@@ -179,3 +180,4 @@ Survey designers can define questions that must be answered by adding the value 
 ### User Tracking
 
 Built into the survey is the ability to track users based on URL parameters. If you deploy your survey on [shinyapps.io](shinyapps.io), or run it locally for experiments, you can add a URL parameter after the backslash as follows: `?user_id=12345`. A live demo can be found here: <https://jdtrat-apps.shinyapps.io/taskdesignr_survey_user_tracking/?user_id=hadley>
+
