@@ -4,10 +4,12 @@
 \alias{surveyOutput}
 \title{Generate the UI Code for demoraphic questions}
 \usage{
-surveyOutput(df)
+surveyOutput(df, ...)
 }
 \arguments{
 \item{df}{A user supplied dataframe in the format of teaching_r_questions.}
+
+\item{...}{Additional arguments to pass into \link[shiny]{actionButton} used to submit survey responses.}
 }
 \value{
 UI Code for a Shiny App.

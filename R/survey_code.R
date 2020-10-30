@@ -113,6 +113,7 @@ surveyOutput_individual <- function(df) {
 #' question (input) types include numeric, text, multiple choice, or selection.
 #'
 #' @param df A user supplied dataframe in the format of teaching_r_questions.
+#' @param ... Additional arguments to pass into \link[shiny]{actionButton} used to submit survey responses.
 #'
 #' @return UI Code for a Shiny App.
 #' @export
@@ -121,7 +122,7 @@ surveyOutput_individual <- function(df) {
 #' \dontrun{
 #' surveyOutput(teaching_r_questions)
 #' }
-surveyOutput <- function(df) {
+surveyOutput <- function(df, ...) {
 
   nested <- nestUniqueQuestions(df)
 
@@ -131,7 +132,9 @@ surveyOutput <- function(df) {
                                                   label = "Enter your username.",
                                                   value = "NO_USER_ID")),
                  purrr::map(nested$data, ~surveyOutput_individual(.x)),
-                 shiny::actionButton("submit", "Submit"))
+                 shiny::actionButton("submit",
+                                     "Submit",
+                                     ...))
 
 }
 
