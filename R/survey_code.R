@@ -242,7 +242,7 @@ renderSurvey <- function(input, df, session) {
       if (!base::is.null(query[["user_id"]])) {
         new_value <- stringr::str_extract(string = query[["user_id"]],
                                           pattern = "[^*/]+")
-        shiny::updateTextInput(session, inputId = "userID", value = query[["user_id"]])
+        shiny::updateTextInput(session, inputId = "userID", value = new_value)
       }
 
     purrr::walk(nested$data, ~showDependence(input = input, df = .x))
