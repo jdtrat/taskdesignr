@@ -7,3 +7,4 @@
 ^InformedConsent\.docx$
 ^InformedConsent\.pdf$
 ^url_user_tracking$
+^\.httr-oauth$

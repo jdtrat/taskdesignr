@@ -9,7 +9,7 @@
 #' @return The same file as a Markdown document.
 #' @export
 #'
-wordToMarkdown_old <- function(file) {
+word_to_markdown_old <- function(file) {
 
   # This extracts the file name before the . at the extension.
   fileName <- base::regmatches(file, base::regexpr("([^.]+)", file))
@@ -42,7 +42,7 @@ wordToMarkdown_old <- function(file) {
 #'
 #' #ADD LATER
 #'
-wordToMarkdown <- function(file, output = NULL) {
+word_to_markdown <- function(file, output = NULL) {
 
 
   if (base::is.null(output)) {
@@ -73,14 +73,14 @@ wordToMarkdown <- function(file, output = NULL) {
 #' \dontrun{
 #' ui <- shiny::fluidPage(
 #' shiny::mainPanel(
-#' displayDocument('path-to-your-file')
+#' display_document('path-to-your-file')
 #' )
 #' )
 #'}
-displayDocument <- function(file) {
+display_document <- function(file) {
 
   if (base::grepl(".docx", file)) {
-    markdownFile <- wordToMarkdown(file, output = NULL)
+    markdownFile <- word_to_markdown(file, output = NULL)
     base::on.exit(base::unlink(markdownFile))
   } else if (base::grepl(".md", file)) {
     markdownFile <- file
@@ -96,7 +96,7 @@ displayDocument <- function(file) {
 #' Demo for displaying a document in a Shiny app.
 #'
 #' This function provides a minimal example of using the
-#' \code{\link{displayDocument}} function within your Shiny application to
+#' \code{\link{display_document}} function within your Shiny application to
 #' display a document.
 #' @param file The file (path) containing a document to display. Can be .docx or .md file type.
 #'
@@ -106,11 +106,11 @@ displayDocument <- function(file) {
 #' @examples
 #'
 #' # FILL THIS OUT LATER
-demo_displayDocument <- function(file) {
+demo_display_document <- function(file) {
 
   ui <- shiny::fluidPage(
     shiny::mainPanel(
-      displayDocument(file = file)
+      display_document(file = file)
     )
   )
 
