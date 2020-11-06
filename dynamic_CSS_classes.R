@@ -1,11 +1,13 @@
 library(shiny)
 library(tidyverse)
 library(shinyalert)
+source('code_wrappers.R')
 
 ui <- fluidPage(
   shinyalert::useShinyalert(),
   wellPanel(actionButton("addClass", "Add a class"),
-            downloadButton("downloadCSS", "Download CSS")),
+            downloadButton("downloadCSS", "Download CSS"),
+            downloadButton("downloadShiny", "Download Shiny code")),
   imageOutput("image",
               width = "85vw",
               height = "85vh",
@@ -13,9 +15,30 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
 
-  # create a reactiveValues object to index into later
-  ui_elements <- reactiveValues(numClasses = 0,
-                                CSS_output = "")
+  # create a reactive values object to index into later
+  ui_elements <- reactiveValues(R_body = "",
+                                CSS_body = "")
+
+  # Create a function that takes in ui elements from shiny modal and returns the
+  # appropriate R code using taskdesignr
+  get_R_body <- reactive({
+    switch(input$ui_type,
+           "Text" = glue::glue("add_text(text = \"[input$text_value]\",
+                           tag_type = \"[input$text_class]\",
+                           class = \"[input$class_name]\")$ui,",
+                           .open = "[",
+                           .close = "]"),
+           "Image" = glue::glue("add_image(file = \"[input$image_path]\",
+                            class = \"[input$class_name]\",
+                            width = \"[input$image_class_width]\",
+                            height = \"[input$image_class_height]\")$ui,",
+                            .open = "[",
+                            .close = "]"),
+           "Slider" = glue::glue("add_slider()",
+                                 .open = "[",
+                                 .close = "]")
+    )
+  })
 
   # Create a blank canvas for people to draw regions on and define UI elements
   output$image <- renderImage({
@@ -37,18 +60,18 @@ server <- function(input, output, session) {
   # the CSS element and define the type of input.
   observeEvent(input$addClass, {
 
-    ui_elements$numClasses <- ui_elements$numClasses + 1
     shinyalert(title = "Customize your class",
                html = TRUE,
                text = tagList(
-                 selectInput("class_type",
+                 selectInput("ui_type",
                              "What type of UI Element will go here?",
                              choices = c("Text",
                                          "Image",
                                          "Slider"),
                              selected = character(0)),
                  conditionalPanel(
-                   condition = "input.class_type == 'Text'",
+                   condition = "input.ui_type == 'Text'",
+                   textInput("text_value", "What text do you want to display?"),
                    selectInput("text_class", "What type of text UI is this?",
                                choices = c("h1",
                                            "h2",
@@ -59,12 +82,13 @@ server <- function(input, output, session) {
                                            "p"))
                  ),
                  conditionalPanel(
-                   condition = "input.class_type == 'Image'",
+                   condition = "input.ui_type == 'Image'",
+                   textInput("image_path", "Path to Image:"),
                    textInput("image_class_height", "Image Height:"),
                    textInput("image_class_width", "Image Width:")
                  ),
                  conditionalPanel(
-                   condition = "input.class_type == 'Slider'",
+                   condition = "input.ui_type == 'Slider'",
                    textInput("slider_class_label", "Slider Label:"),
                    textInput("slider_class_choices", "Slider Choices:")
                  ),
@@ -88,7 +112,7 @@ server <- function(input, output, session) {
   # when the modal is pressed, create the css output
   observeEvent(input$class_modal, {
 
-    ui_elements$CSS_output <- c(ui_elements$CSS_output,
+    ui_elements$CSS_body <- c(ui_elements$CSS_body,
                     glue::glue("
            .[input$class_name] {
 
@@ -104,12 +128,37 @@ server <- function(input, output, session) {
            .open = "[",
            .close = "]"))
 
+    # combine the R
+    ui_elements$R_body <- c(ui_elements$R_body,
+                            get_R_body())
+
+    # combine the CSS header with the user added CSS body
+    CSS_file <- c(CSS_header,
+                  ui_elements$CSS_body)
+
+    # download CSS file
     output$downloadCSS <- downloadHandler(
       filename = function() {
         paste("custom-ui", ".css", sep="")
       },
       content = function(file) {
-        writeLines(ui_elements$CSS_output, con = file)
+        writeLines(CSS_file, con = file)
+      }
+    )
+
+    # combine the R header and footer with user added body
+    R_file <- c(R_header,
+                ui_elements$R_body,
+                R_footer)
+
+
+    # download .R file
+    output$downloadShiny <- downloadHandler(
+      filename = function() {
+        paste("custom-ui", ".R", sep="")
+      },
+      content = function(file) {
+        writeLines(, con = file)
       }
     )
 
