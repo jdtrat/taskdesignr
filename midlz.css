@@ -1,9 +1,0 @@
-
-.middles {
-  grid-column-start: 1;
-  grid-column-end: 100;
-  grid-row-start: 60;
-  grid-row-end: 80;
-  place-self: center;
-}
-

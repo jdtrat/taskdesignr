@@ -4,7 +4,8 @@ library(shinyalert)
 
 ui <- fluidPage(
   shinyalert::useShinyalert(),
-  wellPanel(actionButton("addClass", "Add a class")),
+  wellPanel(actionButton("addClass", "Add a class"),
+            downloadButton("downloadCSS", "Download CSS")),
   imageOutput("image",
               width = "85vw",
               height = "85vh",
@@ -13,7 +14,8 @@ ui <- fluidPage(
 server <- function(input, output, session) {
 
   # create a reactiveValues object to index into later
-  ui_elements <- reactiveValues()
+  ui_elements <- reactiveValues(numClasses = 0,
+                                CSS_output = "")
 
   # Create a blank canvas for people to draw regions on and define UI elements
   output$image <- renderImage({
@@ -35,6 +37,7 @@ server <- function(input, output, session) {
   # the CSS element and define the type of input.
   observeEvent(input$addClass, {
 
+    ui_elements$numClasses <- ui_elements$numClasses + 1
     shinyalert(title = "Customize your class",
                html = TRUE,
                text = tagList(
@@ -85,7 +88,8 @@ server <- function(input, output, session) {
   # when the modal is pressed, create the css output
   observeEvent(input$class_modal, {
 
-    CSS_output <- glue::glue("
+    ui_elements$CSS_output <- c(ui_elements$CSS_output,
+                    glue::glue("
            .[input$class_name] {
 
            grid-column-start: [ui_elements$coords$xmin];
@@ -98,11 +102,20 @@ server <- function(input, output, session) {
 
            ",
            .open = "[",
-           .close = "]")
+           .close = "]"))
 
-    print(CSS_output)
+    output$downloadCSS <- downloadHandler(
+      filename = function() {
+        paste("custom-ui", ".css", sep="")
+      },
+      content = function(file) {
+        writeLines(ui_elements$CSS_output, con = file)
+      }
+    )
 
   })
+
+
 }
 
 shiny::shinyApp(ui = ui, server = server)
