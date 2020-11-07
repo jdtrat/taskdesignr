@@ -3,6 +3,19 @@ library(tidyverse)
 library(shinyalert)
 source('code_wrappers.R')
 
+update_ui_thumnail <- function(base_image) {
+
+
+
+  output <- magick::image_composite(base_image,
+                                    new_image,
+                                    operator = "SrcOver")
+
+  return(output)
+
+}
+
+
 ui <- fluidPage(
   shinyalert::useShinyalert(),
   wellPanel(actionButton("addClass", "Add a class"),
@@ -18,6 +31,13 @@ server <- function(input, output, session) {
   # create a reactive values object to index into later
   ui_elements <- reactiveValues(R_body = "",
                                 CSS_body = "")
+
+  base_image <- reactive({
+    magick::image_blank(width = session$clientData$output_image_width,
+                        height = session$clientData$output_image_height) %>%
+      magick::image_border(geometry = "10x10")
+  })
+
 
   # Create a function that takes in ui elements from shiny modal and returns the
   # appropriate R code using taskdesignr
@@ -42,18 +62,31 @@ server <- function(input, output, session) {
 
   # Create a blank canvas for people to draw regions on and define UI elements
   output$image <- renderImage({
-    width <- session$clientData$output_image_width
-    height <- session$clientData$output_image_height
 
     outfile <- tempfile(fileext = ".png")
-    magick::image_blank(width = width, height = height) %>%
-    magick::image_border() %>%
-    magick::image_write(path = outfile)
+    outImage <- base_image()
+
+    # observeEvent(input$class_modal, {
+    #
+    #   new_image <- magick::image_blank(width = (input$image_brush$xmax - input$image_brush$xmin),
+    #                                    height = (input$image_brush$ymax - input$image_brush$ymin),
+    #                                    color = "#d4ebf2") %>%
+    #     magick::image_border(color = "blue",
+    #                          geometry = "2x2")
+    #
+    #   outImage <- magick::image_composite(outImage,
+    #                                       new_image,
+    #                                       operator = "SrcOver")
+    #
+    # })
+
+    magick::image_write(image = outImage,
+                        path = outfile)
 
     list(src = outfile,
          contentType = "image/png",
-         width = width,
-         height = height)
+         width = session$clientData$output_image_width,
+         height = session$clientData$output_image_height)
   }, deleteFile = TRUE)
 
   # When the addClass input is hit, pop up a modal that allows you to customize
@@ -136,6 +169,12 @@ server <- function(input, output, session) {
     CSS_file <- c(CSS_header,
                   ui_elements$CSS_body)
 
+
+    # combine the R header and footer with user added body
+    R_file <- c(R_header,
+                ui_elements$R_body,
+                R_footer)
+
     # download CSS file
     output$downloadCSS <- downloadHandler(
       filename = function() {
@@ -146,11 +185,6 @@ server <- function(input, output, session) {
       }
     )
 
-    # combine the R header and footer with user added body
-    R_file <- c(R_header,
-                ui_elements$R_body,
-                R_footer)
-
 
     # download .R file
     output$downloadShiny <- downloadHandler(
@@ -158,12 +192,11 @@ server <- function(input, output, session) {
         paste("custom-ui", ".R", sep="")
       },
       content = function(file) {
-        writeLines(, con = file)
+        writeLines(R_file, con = file)
       }
     )
 
   })
-
 
 }
 
