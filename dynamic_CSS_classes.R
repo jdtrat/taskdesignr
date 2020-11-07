@@ -68,15 +68,19 @@ server <- function(input, output, session) {
 
     # observeEvent(input$class_modal, {
     #
-    #   new_image <- magick::image_blank(width = (input$image_brush$xmax - input$image_brush$xmin),
-    #                                    height = (input$image_brush$ymax - input$image_brush$ymin),
-    #                                    color = "#d4ebf2") %>%
-    #     magick::image_border(color = "blue",
-    #                          geometry = "2x2")
-    #
-    #   outImage <- magick::image_composite(outImage,
-    #                                       new_image,
-    #                                       operator = "SrcOver")
+    if (!is.null(input$image_brush)) {
+      new_image <- magick::image_blank(width = (input$image_brush$xmax - input$image_brush$xmin),
+                                       height = (input$image_brush$ymax - input$image_brush$ymin),
+                                       color = "#d4ebf2") %>%
+        magick::image_border(color = "blue",
+                             geometry = "2x2")
+
+      outImage <- magick::image_composite(outImage,
+                                          new_image,
+                                          offset = paste0("+", input$image_brush$xmin, "+", input$image_brush$ymin),
+                                          operator = "SrcOver")
+    }
+
     #
     # })
 
