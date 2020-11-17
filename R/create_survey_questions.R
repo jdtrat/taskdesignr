@@ -21,27 +21,53 @@ create_survey_questions <- function() {
                                      "Yes/No")),
       shiny::textInput("question_title",
                        "What is the question's title?"),
-      shiny::checkboxInput("question_required",
-                           "This question will be required."),
+      shiny::checkboxInput("dependency",
+                           "This question has a dependency"),
       shinyjs::hidden(shiny::selectInput("question_dependence",
                                        "Which question does this depend on?",
                                        choices = "FILL THIS IN WITH THE QUESTIONS ADDED")),
       shinyjs::hidden(shiny::selectInput("question_dependence_value",
                                          label = "For what value of tha question should this one be shown?",
                                          choices = "FILL THIS IN WITH THE QUESTIONS ADDED")),
+      shiny::checkboxInput("question_required",
+                           "This question will be required."),
       shiny::actionButton("createQuestion",
                           "Create a Question")
     ),
     shiny::mainPanel(
-      shiny::tableOutput("table")
+      shiny::tableOutput("table"),
+      #shiny::uiOutput("form_ui"),
+      tags$div(id = "form_placeholder")
     )
 
   )
 
   server <- function(input, output, session) {
 
+
+    form <- reactiveValues()
+
+
+    # IF DEPENDENCE IS NOT NA IT WILL BE HIDDEN SO IT WILL "WORK" BUT NOT
     shiny::observe({
-      if (input$question_required == TRUE) {
+
+      form$question <- input$question_title
+      form$option <- "25"
+      form$input_type <- input$question_type
+      form$input_id <- "q1"
+      form$dependence <- input$question_dependence
+      form$dependence_value <- input$question_dependence_value
+      form$required <- input$question_required
+
+      form$forms <- data.frame(question = form$question,
+                               option = form$option,
+                               input_type = base::tolower(form$input_type),
+                               input_id = form$input_id,
+                               dependence = NA,
+                               dependence_value = NA,
+                               required = form$required)
+
+      if (input$dependency == TRUE) {
         shinyjs::show(id = "question_dependence")
         shiny::updateSelectInput(session, "question_dependence", choices = "question")
         shinyjs::show(id = "question_dependence_value")
@@ -51,20 +77,30 @@ create_survey_questions <- function() {
         shinyjs::hide(id = "question_dependence")
         shinyjs::hide(id = "question_dependence_value")
       }
-    })
 
+    })
 
     output$table <- shiny::renderTable({
 
-      data.frame(question = input$question_title,
-                 option = "FILL LATER",
-                 input_type = input$question_type,
-                 input_id = "q1",
-                 dependence = input$question_dependence,
-                 dependence_value = input$question_dependence_value,
-                 required = input$question_required)
+
+      form$forms
+
     })
 
+    # output$form_ui <- shiny::renderUI({
+    #
+    #   print(Sys.time())
+    #   taskdesignr::surveyOutput_individual(df = form$forms)
+    #
+    # })
+
+    observeEvent(input$createQuestion,{
+
+      ui <- taskdesignr::surveyOutput_individual(df = form$forms)
+      insertUI(selector = "#form_placeholder",
+               ui = ui)
+
+    })
 
   }
 
