@@ -6,23 +6,23 @@
 #' @export
 #'
 create_survey_questions <- function() {
-  form_question_ui <- function(question) {
+  form_question_ui <- function(form) {
     div(
       class = "binder",
-      id = question,
+      id = form$input_id,
       div(
         class = "relative",
-        taskdesignr::surveyOutput_individual(teaching_r_questions[1, ])
+        taskdesignr::surveyOutput_individual(form)
       ),
       div(
         class = "absolute",
         actionButton(
-          inputId = paste0(question, "remove", sep = "_"),
+          inputId = paste0(form$input_id, "remove", sep = "_"),
           label = "Remove",
           icon = icon("trash")
         ),
         shinyWidgets::switchInput(
-          inputId = paste0(question, "required", sep = "_"),
+          inputId = paste0(form$input_id, "required", sep = "_"),
           label = "Required",
           labelWidth = "60px",
           size = "mini",
@@ -35,7 +35,6 @@ create_survey_questions <- function() {
   ui <- shiny::fluidPage(
     tags$head(
       tags$style(HTML("
-
 
 div.binder {
   position: relative;
@@ -68,6 +67,10 @@ div.absolute {
           "Yes/No"
         )
       ),
+        tags$div(id = "option_placeholder"),
+        actionButton("add_option", "Add an option"),
+        helpText("This is the default value shown for numeric or text questions.",
+                 "For Select, Multiple Choice, or Yes/No questions, these are the possible response options."),
       shiny::textInput(
         "question_title",
         "What is the question's title?"
@@ -106,10 +109,11 @@ div.absolute {
 
     # IF DEPENDENCE IS NOT NA IT WILL BE HIDDEN SO IT WILL "WORK" BUT NOT
     shiny::observe({
+
       form$question <- input$question_title
       form$option <- "25"
       form$input_type <- input$question_type
-      form$input_id <- "q1"
+      form$input_id <- janitor::make_clean_names(input$question_title)
       form$dependence <- input$question_dependence
       form$dependence_value <- input$question_dependence_value
       form$required <- input$question_required
@@ -141,20 +145,24 @@ div.absolute {
       form$forms
     })
 
-    # output$form_ui <- shiny::renderUI({
-    #
-    #   print(Sys.time())
-    #   taskdesignr::surveyOutput_individual(df = form$forms)
-    #
-    # })
-
     observeEvent(input$create_question, {
       ui <- taskdesignr::surveyOutput_individual(df = form$forms)
       insertUI(
         selector = "#form_placeholder",
-        ui = form_question_ui(question = form$question)
+        ui = form_question_ui(form = form$forms)
       )
     })
+
+    observeEvent(input$add_option, {
+
+      insertUI(selector = "#option_placeholder",
+              ui = textInput(inputId = paste0("option", input$add_option),
+                             label = paste0("Option", input$add_option),
+                             value = "Placeholder"))
+
+    })
+
+
   }
 
   # Run the application
