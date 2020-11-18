@@ -3,19 +3,6 @@ library(tidyverse)
 library(shinyalert)
 source('code_wrappers.R')
 
-update_ui_thumnail <- function(base_image) {
-
-
-
-  output <- magick::image_composite(base_image,
-                                    new_image,
-                                    operator = "SrcOver")
-
-  return(output)
-
-}
-
-
 ui <- fluidPage(
   shinyalert::useShinyalert(),
   wellPanel(actionButton("addClass", "Add a class"),
@@ -28,9 +15,6 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
 
-  # create a reactive values object to index into later
-  ui_elements <- reactiveValues(R_body = "",
-                                CSS_body = "")
 
   base_image <- reactive({
     magick::image_blank(width = session$clientData$output_image_width,
@@ -38,6 +22,11 @@ server <- function(input, output, session) {
       magick::image_border(geometry = "10x10")
   })
 
+
+  # create a reactive values object to index into later
+  ui_elements <- reactiveValues(R_body = "",
+                                CSS_body = "",
+                                preview = reactive({base_image()}))
 
   # Create a function that takes in ui elements from shiny modal and returns the
   # appropriate R code using taskdesignr
@@ -61,30 +50,31 @@ server <- function(input, output, session) {
   })
 
   # Create a blank canvas for people to draw regions on and define UI elements
+
+
+  observeEvent(input$class_modal, {
+
+    #if (!is.null(input$image_brush)) {
+    new_image <- magick::image_blank(width = (input$image_brush$xmax - input$image_brush$xmin),
+                                     height = (input$image_brush$ymax - input$image_brush$ymin),
+                                     color = "#d4ebf2") %>%
+      magick::image_border(color = "blue",
+                           geometry = "2x2")
+
+    updated_image <- magick::image_composite(isolate(ui_elements$preview()),
+                                                   new_image,
+                                                   offset = paste0("+", input$image_brush$xmin, "+", input$image_brush$ymin),
+                                                   operator = "SrcOver")
+
+    ui_elements$preview <- reactive({updated_image})
+
+  })
+
   output$image <- renderImage({
 
     outfile <- tempfile(fileext = ".png")
-    outImage <- base_image()
 
-    # observeEvent(input$class_modal, {
-    #
-    if (!is.null(input$image_brush)) {
-      new_image <- magick::image_blank(width = (input$image_brush$xmax - input$image_brush$xmin),
-                                       height = (input$image_brush$ymax - input$image_brush$ymin),
-                                       color = "#d4ebf2") %>%
-        magick::image_border(color = "blue",
-                             geometry = "2x2")
-
-      outImage <- magick::image_composite(outImage,
-                                          new_image,
-                                          offset = paste0("+", input$image_brush$xmin, "+", input$image_brush$ymin),
-                                          operator = "SrcOver")
-    }
-
-    #
-    # })
-
-    magick::image_write(image = outImage,
+    magick::image_write(image = ui_elements$preview(),
                         path = outfile)
 
     list(src = outfile,
