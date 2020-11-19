@@ -31,10 +31,63 @@ create_survey_questions <- function() {
     )
   }
 
+
+flex_form_question_ui <- function(form, question_number) {
+  shiny::tagList(shiny::fluidRow(
+    column(
+      width = 4,
+      offset = 0,
+      shiny::textInput(paste0("question_", question_number, "_title"),
+                       "",
+                       "Untitled Question",
+                       width = "600px"),
+    ),
+    column(width = 2,
+          offset = 0.5,
+          shiny::selectInput(paste0("question_", question_number, "_type"),
+                             "",
+                             choices = c(
+                               "Select",
+                               "Numeric",
+                               "Multiple Choice",
+                               "Text",
+                               "Yes/No"
+                             )
+          )
+          )
+    ),
+  shiny::fluidRow(
+    column(
+      width = 1,
+      offset = 2,
+      actionButton(
+        inputId = paste0(form$input_id, "remove", sep = "_"),
+        label = "Remove",
+        icon = icon("trash")
+      )
+    ),
+    column(width = 1,
+      offset = 2.9,
+      shinyWidgets::switchInput(
+        inputId = paste0(form$input_id, "required", sep = "_"),
+        label = "Required",
+        labelWidth = "60px"
+      )
+    )
+  )
+  )
+}
+
   # Define UI for application that draws a histogram
   ui <- shiny::fluidPage(
     tags$head(
       tags$style(HTML("
+
+div.binder_flex {
+  display: flex;
+}
+
+
 
 div.binder {
   position: relative;
@@ -99,7 +152,7 @@ div.absolute {
     shiny::mainPanel(
       shiny::tableOutput("table"),
       # shiny::uiOutput("form_ui"),
-      tags$div(id = "form_placeholder")
+      tags$div(id = "form_placeholder"),
     )
   )
 )
@@ -146,10 +199,11 @@ div.absolute {
     })
 
     observeEvent(input$create_question, {
+      print(input)
       ui <- taskdesignr::surveyOutput_individual(df = form$forms)
       insertUI(
         selector = "#form_placeholder",
-        ui = form_question_ui(form = form$forms)
+        ui = flex_form_question_ui(form = form$forms, question_number = input$create_question)
       )
     })
 
