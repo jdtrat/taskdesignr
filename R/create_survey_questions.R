@@ -32,7 +32,7 @@ create_survey_questions <- function() {
   }
 
 
-flex_form_question_ui <- function(form, question_number) {
+flex_form_question_ui <- function(question_number) {
   shiny::tagList(shiny::fluidRow(
     column(
       width = 4,
@@ -54,14 +54,15 @@ flex_form_question_ui <- function(form, question_number) {
                                "Yes/No"
                              )
           )
-          )
+          ),
+    tags$div(id = paste0("option_placeholder_", question_number)),
     ),
   shiny::fluidRow(
     column(
       width = 1,
       offset = 2,
       actionButton(
-        inputId = paste0(form$input_id, "remove", sep = "_"),
+        inputId = paste0("question_", question_number, "_title_", "remove"),
         label = "Remove",
         icon = icon("trash")
       )
@@ -69,12 +70,13 @@ flex_form_question_ui <- function(form, question_number) {
     column(width = 1,
       offset = 2.9,
       shinyWidgets::switchInput(
-        inputId = paste0(form$input_id, "required", sep = "_"),
+        inputId = paste0("question_", question_number, "_title_", "remove"),
         label = "Required",
         labelWidth = "60px"
       )
     )
-  )
+  ),
+  tags$div(id = paste0("question_", c(question_number + 1)))
   )
 }
 
@@ -120,7 +122,7 @@ div.absolute {
           "Yes/No"
         )
       ),
-        tags$div(id = "option_placeholder"),
+        # tags$div(id = "option_placeholder"),
         actionButton("add_option", "Add an option"),
         helpText("This is the default value shown for numeric or text questions.",
                  "For Select, Multiple Choice, or Yes/No questions, these are the possible response options."),
@@ -151,19 +153,20 @@ div.absolute {
     ),
     shiny::mainPanel(
       shiny::tableOutput("table"),
-      # shiny::uiOutput("form_ui"),
-      tags$div(id = "form_placeholder"),
+      #default question
+      flex_form_question_ui(question_number = 1)
     )
   )
 )
   server <- function(input, output, session) {
-    form <- reactiveValues()
+    # Have a question already present
+    form <- reactiveValues(num_questions = 1)
 
 
     # IF DEPENDENCE IS NOT NA IT WILL BE HIDDEN SO IT WILL "WORK" BUT NOT
     shiny::observe({
 
-      form$question <- input$question_title
+      form$question <- input[[paste0("question_", form$num_questions, "_title")]]
       form$option <- "25"
       form$input_type <- input$question_type
       form$input_id <- janitor::make_clean_names(input$question_title)
@@ -171,7 +174,7 @@ div.absolute {
       form$dependence_value <- input$question_dependence_value
       form$required <- input$question_required
 
-      form$forms <- data.frame(
+      form[[paste0("question_", form$num_questions)]] <- data.frame(
         question = form$question,
         option = form$option,
         input_type = base::tolower(form$input_type),
@@ -195,25 +198,36 @@ div.absolute {
     })
 
     output$table <- shiny::renderTable({
-      form$forms
+      form[[paste0("question_", form$num_questions)]]
     })
 
-    observeEvent(input$create_question, {
-      print(input)
-      ui <- taskdesignr::surveyOutput_individual(df = form$forms)
-      insertUI(
-        selector = "#form_placeholder",
-        ui = flex_form_question_ui(form = form$forms, question_number = input$create_question)
-      )
-    })
+    # observeEvent(input$create_question, {
+    #   form$num_questions <-  form$num_questions + 1
+    #   # insertUI(
+    #   #   selector = "#form_placeholder",
+    #   #   ui = flex_form_question_ui(form$num_questions)
+    #   # )
+    # })
 
     observeEvent(input$add_option, {
 
-      insertUI(selector = "#option_placeholder",
+      insertUI(selector = paste0("#option_placeholder_", input$create_question),
               ui = textInput(inputId = paste0("option", input$add_option),
                              label = paste0("Option", input$add_option),
                              value = "Placeholder"))
 
+      observe({print(input)})
+    })
+
+    observe({print(input)})
+
+    observeEvent(input$create_question, {
+      form$num_questions <-  form$num_questions + 1
+      form$questions <- tagList(form$questions, flex_form_question_ui(form$num_questions))
+        insertUI(
+          selector = paste0("#question_", form$num_questions),
+          ui = flex_form_question_ui(form$num_questions)
+        )
     })
 
 
