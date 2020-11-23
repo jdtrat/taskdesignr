@@ -6,6 +6,29 @@
 #' @export
 #'
 create_survey_questions <- function() {
+
+  make_question_dataframe <- function(input) {
+
+
+  }
+
+
+  #' Get input questions parameter
+  #'
+  #' @param input The Shiny input
+  #' @param form The form reactiveValues object
+  #' @keywords internal
+  #'
+  #' @return
+  #'
+  #' @examples
+  get_questions <- function(input, form) {
+
+    purrr::map_df(.x = 1:form$num_questions,
+                  ~ base::list(question = input[[paste0("question_", .x, "_title")]]))
+
+  }
+
   form_question_ui <- function(form) {
     div(
       class = "binder",
@@ -149,6 +172,10 @@ div.absolute {
       shiny::actionButton(
         "create_question",
         "Create a Question"
+      ),
+      shiny::actionButton(
+        "submit",
+        "Submit"
       )
     ),
     shiny::mainPanel(
@@ -166,23 +193,23 @@ div.absolute {
     # IF DEPENDENCE IS NOT NA IT WILL BE HIDDEN SO IT WILL "WORK" BUT NOT
     shiny::observe({
 
-      form$question <- input[[paste0("question_", form$num_questions, "_title")]]
-      form$option <- "25"
-      form$input_type <- input$question_type
-      form$input_id <- janitor::make_clean_names(input$question_title)
-      form$dependence <- input$question_dependence
-      form$dependence_value <- input$question_dependence_value
-      form$required <- input$question_required
-
-      form[[paste0("question_", form$num_questions)]] <- data.frame(
-        question = form$question,
-        option = form$option,
-        input_type = base::tolower(form$input_type),
-        input_id = form$input_id,
-        dependence = NA,
-        dependence_value = NA,
-        required = form$required
-      )
+      # form$question <- input[[paste0("question_", form$num_questions, "_title")]]
+      # form$option <- "25"
+      # form$input_type <- input$question_type
+      # form$input_id <- janitor::make_clean_names(input$question_title)
+      # form$dependence <- input$question_dependence
+      # form$dependence_value <- input$question_dependence_value
+      # form$required <- input$question_required
+      #
+      # form[[paste0("question_", form$num_questions)]] <- data.frame(
+      #   question = form$question,
+      #   option = form$option,
+      #   input_type = base::tolower(form$input_type),
+      #   input_id = form$input_id,
+      #   dependence = NA,
+      #   dependence_value = NA,
+      #   required = form$required
+      # )
 
       if (input$dependency == TRUE) {
         shinyjs::show(id = "question_dependence")
@@ -198,7 +225,7 @@ div.absolute {
     })
 
     output$table <- shiny::renderTable({
-      form[[paste0("question_", form$num_questions)]]
+      # form[[paste0("question_", form$num_questions)]]
     })
 
     # observeEvent(input$create_question, {
@@ -230,9 +257,15 @@ div.absolute {
         )
     })
 
+    observeEvent(input$submit, {
+      print(get_questions(input, form))
+    })
+
 
   }
 
   # Run the application
   shiny::shinyApp(ui = ui, server = server)
 }
+
+
