@@ -27,7 +27,8 @@ Imports:
     tibble,
     textreadr,
     rmarkdown,
-    magick
+    magick,
+    janitor
 Suggests: 
     knitr
 VignetteBuilder: knitr
