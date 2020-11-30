@@ -30,5 +30,6 @@ Imports:
     magick,
     janitor
 Suggests: 
-    knitr
+    knitr,
+    testthat
 VignetteBuilder: knitr
