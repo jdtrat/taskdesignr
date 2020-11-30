@@ -30,3 +30,35 @@ get_possible_values <- function(digits = TRUE,
   return(possible_values)
 
 }
+
+#' Get individual random string
+#'
+#' @inheritParams get_possible_values
+#' @param length The length of the random string
+#' @keywords internal
+#'
+#' @return One random string
+#'
+#' @examples
+#' get_individual_string()
+#'
+get_individual_string <- function(length = 6,
+                                  digits = TRUE,
+                                  upperalpha = TRUE,
+                                  loweralpha = TRUE) {
+
+  values <- get_possible_values(digits = digits,
+                                upperalpha = upperalpha,
+                                loweralpha = loweralpha)
+  num_possible_values <- length(values)
+  positions <- round(runif(n = length,
+                           min = 0,
+                           max = num_possible_values))
+
+  random_string <- paste(values[positions], collapse = "")
+
+  return(random_string)
+
+}
+
+
