@@ -7,10 +7,6 @@
 #'
 #' @return A character vector of some combination of digits, uppercase, and lowercase letters.
 #'
-#' @examples
-#'
-#' get_possible_values()
-#'
 get_possible_values <- function(digits = TRUE,
                                 upperalpha = TRUE,
                                 loweralpha = TRUE) {
@@ -39,9 +35,6 @@ get_possible_values <- function(digits = TRUE,
 #'
 #' @return One random string
 #'
-#' @examples
-#' get_individual_string()
-#'
 get_individual_string <- function(length = 6,
                                   digits = TRUE,
                                   upperalpha = TRUE,
@@ -52,7 +45,7 @@ get_individual_string <- function(length = 6,
                                 loweralpha = loweralpha)
   num_possible_values <- length(values)
   positions <- round(runif(n = length,
-                           min = 0,
+                           min = 1,
                            max = num_possible_values))
 
   random_string <- paste(values[positions], collapse = "")
@@ -62,3 +55,45 @@ get_individual_string <- function(length = 6,
 }
 
 
+#' Remove duplicate strings from character vectors
+#'
+#' @param chr_vec The character vector to check for uniqueness
+#' @inheritParams get_individual_string
+#'
+#' @keywords internal
+#' @return The character vector without any duplicates
+#'
+
+check_unique <- function(chr_vec,
+                         length,
+                         digits,
+                         upperalpha,
+                         loweralpha) {
+
+  duplicates <- duplicated(chr_vec)
+  num_duplicates <- sum(duplicates)
+
+
+  if (num_duplicates == 0) {
+    vec <- chr_vec
+    return(vec)
+  } else if (num_duplicates > 0) {
+    new_strings <- purrr::map_chr(1:num_duplicates,
+                                  ~get_individual_string(
+                                    length = length,
+                                    digits = digits,
+                                    upperalpha = upperalpha,
+                                    loweralpha = loweralpha
+                                  ))
+    vec <- c(chr_vec[!duplicates], new_strings)
+
+    return(
+      check_unique(chr_vec = vec,
+                   length = length,
+                   digits = digits,
+                   upperalpha = upperalpha,
+                   loweralpha = loweralpha)
+      )
+
+  }
+}

@@ -52,17 +52,20 @@ rand_str <- function(n = 10, len = 6, digits = TRUE,
 #' Generate n random strings of any length using a combination of uppercase or
 #' lowercase letters and digits 0-9.
 #'
-#' @param n
-#' @param length
-#' @param digits
-#' @param upperalpha
-#' @param loweralpha
-#' @param unique
+#' @param n Number of strings
+#' @param len Length of strings
+#' @param digits Logical: TRUE and digits will be in string, FALSE and they won't.
+#' @param upperalpha Logical: TRUE and capital letters will be in string, FALSE and they won't.
+#' @param loweralpha Logical: TRUE and lowercase will be in string, FALSE and they won't.
+#' @param unique Logical: TRUE and strings will be unique, FALSE and they won't.
 #'
 #' @return
 #' @export
 #'
 #' @examples
+#'
+#' user_ids <- data.frame(id = rand_str_update(n = 50))
+#'
 rand_str_update <- function(n = 10,
                             length = 6,
                             digits = TRUE,
@@ -71,10 +74,22 @@ rand_str_update <- function(n = 10,
                             unique = TRUE) {
 
 
-  purrr::map_df(1:n, ~list("string" = get_individual_string(length = length,
+  strings <- purrr::map_chr(1:n, ~get_individual_string(length = length,
                                                             digits = digits,
                                                             upperalpha = upperalpha,
-                                                            loweralpha = loweralpha)))
+                                                            loweralpha = loweralpha))
+
+  if (unique) {
+    return(
+      check_unique(chr_vec = strings,
+                   length = length,
+                   digits = digits,
+                   upperalpha = upperalpha,
+                   loweralpha = loweralpha)
+    )
+  } else {
+    return(strings)
+  }
 
 }
 
@@ -87,6 +102,7 @@ rand_str_update <- function(n = 10,
 #' @export
 #'
 #' @examples
+#'
 setup_usernames <- function(drop_path, num_usernames) {
 
   if (num_usernames %% 2 != 0) {
