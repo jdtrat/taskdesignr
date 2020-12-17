@@ -1,52 +1,3 @@
-#' Generate Random Strings from random.org
-#'
-#' This function is minimally adapted from the CRAN package "random" which
-#' provides access to random.org.
-#'
-#' @param n Number of strings
-#' @param len Length of strings
-#' @param digits Logical: TRUE and digits will be in string, FALSE and they won't.
-#' @param upperalpha Logical: TRUE and capital letters will be in string, FALSE and they won't.
-#' @param loweralpha Logical: TRUE and lowercase will be in string, FALSE and they won't.
-#' @param unique Logical: TRUE and strings will be unique, FALSE and they won't.
-#'
-#' @return A data frame with column name "strings" containing n unique strings.
-#' @export
-#'
-#' @examples
-#'
-#' strings <- rand_str(upperalpha = FALSE)
-
-rand_str <- function(n = 10, len = 6, digits = TRUE,
-                          upperalpha = TRUE, loweralpha=TRUE,
-                          unique = TRUE) {
-  if (n < 1 || n > 1e4)
-    stop("Random string requests must be between 1 and 10,000 numbers")
-  if (len < 1 || len > 20)
-    stop("Random string length must be between 1 and 20")
-  if (class(digits)!="logical" || class(upperalpha)!="logical" ||
-      class(loweralpha)!="logical" || class(unique)!="logical")
-    stop("The 'digits', '(lower|upper)alpha' and 'unique' arguments has to be logical")
-  if ( !digits && !upperalpha && !loweralpha)
-    stop("The 'digits', 'loweralpha' and 'loweralpha' cannot all be false at the same time")
-  urltxt <- paste("https://www.random.org/strings/",
-                  "?num=", n,
-                  "&len=", len,
-                  "&digits=", ifelse(digits, "on", "off"),
-                  "&upperalpha=", ifelse(upperalpha, "on", "off"),
-                  "&loweralpha=", ifelse(loweralpha, "on", "off"),
-                  "&unique=", ifelse(unique, "on", "off"),
-                  "&format=plain",
-                  "&rnd=new",
-                  sep="")
-  con <- url(urltxt, open="r")
-  randStrings <- read.table(con)
-  names(randStrings) <- "strings"
-  on.exit(close(con))
-  return(randStrings)
-}
-
-
 #' Generate Random Strings
 #'
 #' Generate n random strings of any length using a combination of uppercase or
@@ -64,9 +15,9 @@ rand_str <- function(n = 10, len = 6, digits = TRUE,
 #'
 #' @examples
 #'
-#' user_ids <- data.frame(id = rand_str_update(n = 50))
+#' user_ids <- data.frame(id = rand_str(n = 50))
 #'
-rand_str_update <- function(n = 10,
+rand_str <- function(n = 10,
                             length = 6,
                             digits = TRUE,
                             upperalpha = TRUE,
