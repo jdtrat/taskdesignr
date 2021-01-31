@@ -6,5 +6,12 @@
 ^multiple_pages_test$
 ^InformedConsent\.docx$
 ^InformedConsent\.pdf$
+^InformedConsent\.md$
 ^url_user_tracking$
 ^\.httr-oauth$
+^loadings\.R$
+^consent_markdown\.md$
+^consent_pdf\.pdf$
+^consent_word\.docx$
+^teaching_r_study_consent\.md$
+^\.github$
