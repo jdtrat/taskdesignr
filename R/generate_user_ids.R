@@ -62,8 +62,8 @@ setup_usernames <- function(drop_path, num_usernames) {
 
   # Create random strings and vectors for each group
   strings <- rand_str(n = num_usernames, upperalpha = FALSE)
-  group_a <- paste0(strings[1:(num_usernames/2),], "_GA")
-  group_b <- paste0(strings[((num_usernames/2) + 1):num_usernames,], "_GB")
+  group_a <- paste0(strings[1:(num_usernames/2)], "_GA")
+  group_b <- paste0(strings[((num_usernames/2) + 1):num_usernames], "_GB")
 
   all_usernames <- data.frame(combined_groups = c(group_a, group_b))
 
