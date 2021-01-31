@@ -7,6 +7,8 @@
 remove_usernames(drop_path, num_usernames)
 }
 \arguments{
+\item{drop_path}{The path (folder) in dropbox account where the username file is located}
+
 \item{num_usernames}{The number of usernames to remove.}
 }
 \value{

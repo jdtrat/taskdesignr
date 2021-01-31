@@ -18,14 +18,14 @@ test_that("get individual string lengths are appropriate", {
 test_that("check_unique() works", {
 
   check_not_unique <- function(...) {
-    not_unique_vec <- rand_str_update(n = 1000,
+    not_unique_vec <- rand_str(n = 1000,
                                       length = 3,
                                       unique = FALSE)
     return(sum(duplicated(not_unique_vec)))
   }
 
   check_unique <- function(...) {
-    unique_vec <- rand_str_update(n = 1000,
+    unique_vec <- rand_str(n = 1000,
                                   length = 3,
                                   unique = TRUE,
                                   ...)

@@ -28,7 +28,10 @@ Imports:
     textreadr,
     rmarkdown,
     magick,
-    janitor
+    janitor,
+    stringr,
+    rdrop2,
+    here
 Suggests: 
     knitr,
     testthat

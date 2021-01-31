@@ -44,9 +44,9 @@ get_individual_string <- function(length = 6,
                                 upperalpha = upperalpha,
                                 loweralpha = loweralpha)
   num_possible_values <- length(values)
-  positions <- round(runif(n = length,
-                           min = 1,
-                           max = num_possible_values))
+  positions <- round(stats::runif(n = length,
+                                  min = 1,
+                                  max = num_possible_values))
 
   random_string <- paste(values[positions], collapse = "")
 

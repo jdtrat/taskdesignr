@@ -2,11 +2,11 @@
 % Please edit documentation in R/generate_user_ids.R
 \name{rand_str}
 \alias{rand_str}
-\title{Generate Random Strings from random.org}
+\title{Generate Random Strings}
 \usage{
 rand_str(
   n = 10,
-  len = 6,
+  length = 6,
   digits = TRUE,
   upperalpha = TRUE,
   loweralpha = TRUE,
@@ -16,7 +16,7 @@ rand_str(
 \arguments{
 \item{n}{Number of strings}
 
-\item{len}{Length of strings}
+\item{length}{Length of strings}
 
 \item{digits}{Logical: TRUE and digits will be in string, FALSE and they won't.}
 
@@ -27,13 +27,14 @@ rand_str(
 \item{unique}{Logical: TRUE and strings will be unique, FALSE and they won't.}
 }
 \value{
-A data frame with column name "strings" containing n unique strings.
+
 }
 \description{
-This function is minimally adapted from the CRAN package "random" which
-provides access to random.org.
+Generate n random strings of any length using a combination of uppercase or
+lowercase letters and digits 0-9.
 }
 \examples{
 
-strings <- rand_str(upperalpha = FALSE)
+user_ids <- data.frame(id = rand_str(n = 50))
+
 }

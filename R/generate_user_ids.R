@@ -4,7 +4,7 @@
 #' lowercase letters and digits 0-9.
 #'
 #' @param n Number of strings
-#' @param len Length of strings
+#' @param length Length of strings
 #' @param digits Logical: TRUE and digits will be in string, FALSE and they won't.
 #' @param upperalpha Logical: TRUE and capital letters will be in string, FALSE and they won't.
 #' @param loweralpha Logical: TRUE and lowercase will be in string, FALSE and they won't.
@@ -18,17 +18,17 @@
 #' user_ids <- data.frame(id = rand_str(n = 50))
 #'
 rand_str <- function(n = 10,
-                            length = 6,
-                            digits = TRUE,
-                            upperalpha = TRUE,
-                            loweralpha = TRUE,
-                            unique = TRUE) {
+                     length = 6,
+                     digits = TRUE,
+                     upperalpha = TRUE,
+                     loweralpha = TRUE,
+                     unique = TRUE) {
 
 
   strings <- purrr::map_chr(1:n, ~get_individual_string(length = length,
-                                                            digits = digits,
-                                                            upperalpha = upperalpha,
-                                                            loweralpha = loweralpha))
+                                                        digits = digits,
+                                                        upperalpha = upperalpha,
+                                                        loweralpha = loweralpha))
 
   if (unique) {
     return(
@@ -151,6 +151,8 @@ get_username <- function(group, drop_path) {
 #' @return
 #' @export
 #'
+#' @importFrom rlang .data
+#'
 #' @examples
 add_usernames <- function(drop_path, num_usernames) {
 
@@ -179,12 +181,12 @@ add_usernames <- function(drop_path, num_usernames) {
                  sep = "")
 
   new_group_a <- new_usernames %>%
-    dplyr::filter(stringr::str_detect(combined_groups, "_GA")) %>%
-    dplyr::pull(combined_groups)
+    dplyr::filter(stringr::str_detect(.data$combined_groups, "_GA")) %>%
+    dplyr::pull(.data$combined_groups)
 
   new_group_b <- new_usernames %>%
-    dplyr::filter(stringr::str_detect(combined_groups, "_GB")) %>%
-    dplyr::pull(combined_groups)
+    dplyr::filter(stringr::str_detect(.data$combined_groups, "_GB")) %>%
+    dplyr::pull(.data$combined_groups)
 
   added_a <- c(original_group_a, new_group_a)
 
@@ -217,7 +219,7 @@ add_usernames <- function(drop_path, num_usernames) {
 
 #' Remove usernames
 #'
-#' @param drop_path
+#' @param drop_path The path (folder) in dropbox account where the username file is located
 #' @param num_usernames The number of usernames to remove.
 #'
 #' @return
